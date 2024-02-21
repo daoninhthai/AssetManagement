@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${pageTitle != null ? pageTitle + ' | Smart Inventory' : 'Smart Inventory Management'}">Smart Inventory Management</title>
+
+    <!-- Bootstrap 5.3.2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"/>
+    <!-- Font Awesome 6.5 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <!-- DataTables 1.13 -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css"/>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" th:href="@{/css/custom.css}"/>
+</head>
+<body>
+
+    <!-- ===================== SIDEBAR ===================== -->
+    <nav id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <h4 class="text-white mb-0">
+                <i class="fas fa-industry me-2"></i>
+                <span class="sidebar-brand-text">Smart Inventory</span>
+            </h4>
+            <small class="text-muted d-block mt-1 sidebar-version">v2.1</small>
+        </div>
+
+        <ul class="sidebar-nav">
+            <li class="sidebar-nav-item" th:classappend="${activeMenu == 'dashboard' ? 'active' : ''}">
+                <a th:href="@{/}" class="sidebar-nav-link">
+                    <i class="fas fa-dashboard"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="sidebar-nav-item" th:classappend="${activeMenu == 'products' ? 'active' : ''}">
+                <a th:href="@{/products}" class="sidebar-nav-link">
+                    <i class="fas fa-box"></i>
+                    <span>S&#7843;n ph&#7849;m</span>
+                </a>
+            </li>
+            <li class="sidebar-nav-item" th:classappend="${activeMenu == 'warehouses' ? 'active' : ''}">
+                <a th:href="@{/warehouses}" class="sidebar-nav-link">
+                    <i class="fas fa-warehouse"></i>
+                    <span>Kho h&#224;ng</span>
+                </a>
+            </li>
+            <li class="sidebar-nav-item" th:classappend="${activeMenu == 'stock' ? 'active' : ''}">
+                <a th:href="@{/stock}" class="sidebar-nav-link">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Nh&#7853;p/Xu&#7845;t kho</span>
+                </a>
+            </li>
+            <li class="sidebar-nav-item" th:classappend="${activeMenu == 'orders' ? 'active' : ''}">
+                <a th:href="@{/orders}" class="sidebar-nav-link">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>&#272;&#417;n &#273;&#7863;t h&#224;ng</span>
+                </a>
+            </li>
+            <li class="sidebar-nav-item" th:classappend="${activeMenu == 'suppliers' ? 'active' : ''}">
+                <a th:href="@{/suppliers}" class="sidebar-nav-link">
+                    <i class="fas fa-truck"></i>
+                    <span>Nh&#224; cung c&#7845;p</span>
+                </a>
+            </li>
+
+            <li class="sidebar-divider"></li>
+
+            <li class="sidebar-nav-item" th:classappend="${activeMenu == 'ai' ? 'active' : ''}">
+                <a th:href="@{/ai}" class="sidebar-nav-link">
+                    <i class="fas fa-brain"></i>
+                    <span>AI Insights</span>
+                    <span class="badge bg-success ms-auto ai-badge-glow">AI</span>
+                </a>
+            </li>
+            <li class="sidebar-nav-item" th:classappend="${activeMenu == 'alerts' ? 'active' : ''}">
+                <a th:href="@{/alerts}" class="sidebar-nav-link">
+                    <i class="fas fa-bell"></i>
+                    <span>C&#7843;nh b&#225;o</span>
+                    <span class="badge bg-danger ms-auto" th:text="${alertCount != null ? alertCount : '0'}">3</span>
+                </a>
+            </li>
+            <li class="sidebar-nav-item" th:classappend="${activeMenu == 'reports' ? 'active' : ''}">
+                <a th:href="@{/reports}" class="sidebar-nav-link">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>B&#225;o c&#225;o</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <small class="text-muted">&copy; 2024 Smart Inventory Management System v2.1</small>
+        </div>
+    </nav>
+
+    <!-- ===================== MAIN CONTENT ===================== -->
+    <div id="main-content" class="main-content">
+
+        <!-- Top Navbar -->
+        <nav class="top-navbar navbar navbar-expand navbar-light bg-white shadow-sm mb-4">
+            <div class="container-fluid">
+                <button class="btn btn-link text-dark" id="sidebarToggle" type="button">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+                <h5 class="navbar-title mb-0 ms-3" th:text="${pageTitle != null ? pageTitle : 'Dashboard'}">Dashboard</h5>
+
+                <ul class="navbar-nav ms-auto">
+                    <!-- Notifications -->
+                    <li class="nav-item dropdown me-3">
+                        <a class="nav-link position-relative" href="#" id="notifDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-bell fa-lg"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                  th:text="${alertCount != null ? alertCount : '0'}">3</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="notifDropdown">
+                            <li><h6 class="dropdown-header">Th&#244;ng b&#225;o</h6></li>
+                            <li><a class="dropdown-item" th:href="@{/alerts}">
+                                <i class="fas fa-exclamation-triangle text-warning me-2"></i>Xem t&#7845;t c&#7843; c&#7843;nh b&#225;o</a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!-- User Info -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle fa-lg me-1"></i>
+                            <span class="d-none d-md-inline" th:text="${currentUser != null ? currentUser : 'Admin'}">Admin</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>H&#7891; s&#417;</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>C&#224;i &#273;&#7863;t</a></li>
+                            <li><hr class="dropdown-divider"/></li>
+                            <li>
+                                <form th:action="@{/logout}" method="post" class="d-inline">
+                                    <button type="submit" class="dropdown-item text-danger">
+                                        <i class="fas fa-sign-out-alt me-2"></i>&#272;&#259;ng xu&#7845;t
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Flash Messages -->
+        <div class="container-fluid">
+            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                <span th:text="${successMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <span th:text="${errorMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div class="container-fluid content-wrapper">
+            <div th:fragment="content">
+                <!-- Page content will be inserted here -->
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="main-footer text-center text-muted py-3 mt-4 border-top">
+            <small>&copy; 2024 Smart Inventory Management System v2.1</small>
+        </footer>
+    </div>
+
+    <!-- ===================== SCRIPTS ===================== -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+
+    <!-- Sidebar Toggle Script -->
+    <script>
+        document.getElementById('sidebarToggle').addEventListener('click', function () {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+            document.getElementById('main-content').classList.toggle('expanded');
+        });
+
+        // Auto-dismiss alerts after 5 seconds
+        document.querySelectorAll('.alert-dismissible').forEach(function(alert) {
+            setTimeout(function() {
+                var bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
+                bsAlert.close();
+            }, 5000);
+        });
+    </script>
+
+    <!-- Page-specific scripts block -->
+    <th:block th:fragment="scripts">
+    </th:block>
+
+</body>
+</html>

@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: inventory-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: inventory_db
+      POSTGRES_USER: inventory
+      POSTGRES_PASSWORD: inventory123
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U inventory -d inventory_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - inventory-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: inventory-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - inventory-network
+
+  ai-service:
+    build:
+      context: ./ai-service
+      dockerfile: Dockerfile
+    container_name: inventory-ai-service
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - LOG_LEVEL=INFO
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - inventory-network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: inventory-app
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/inventory_db
+      - SPRING_DATASOURCE_USERNAME=inventory
+      - SPRING_DATASOURCE_PASSWORD=inventory123
+      - SPRING_REDIS_HOST=redis
+      - AI_SERVICE_URL=http://ai-service:8000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      ai-service:
+        condition: service_healthy
+    networks:
+      - inventory-network
+
+volumes:
+  postgres_data:
+
+networks:
+  inventory-network:
+    driver: bridge

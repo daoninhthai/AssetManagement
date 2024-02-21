@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: html}">
+<body>
+<div th:fragment="content">
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-1">
+                <i class="fas fa-box text-primary me-2"></i>
+                Chi ti&#7871;t s&#7843;n ph&#7849;m
+            </h4>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a th:href="@{/}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a th:href="@{/products}">S&#7843;n ph&#7849;m</a></li>
+                    <li class="breadcrumb-item active" th:text="${product.name}">Product Name</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="btn-group">
+            <a th:href="@{/products/{id}/edit(id=${product.id})}" class="btn btn-outline-primary">
+                <i class="fas fa-edit me-1"></i>Ch&#7881;nh s&#7917;a
+            </a>
+            <a th:href="@{/ai/forecast(productId=${product.id})}" class="btn btn-outline-success">
+                <i class="fas fa-brain me-1"></i>AI Forecast
+            </a>
+        </div>
+    </div>
+
+    <!-- Alert Messages -->
+    <div th:replace="~{layout/fragments :: alertMessage}"></div>
+
+    <div class="row g-4">
+        <!-- Product Info Card -->
+        <div class="col-lg-5">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Th&#244;ng tin s&#7843;n ph&#7849;m</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless mb-0">
+                        <tr>
+                            <td class="text-muted fw-semibold" style="width: 40%;">SKU</td>
+                            <td><code class="text-primary fs-6" th:text="${product.sku}">SKU001</code></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted fw-semibold">T&#234;n s&#7843;n ph&#7849;m</td>
+                            <td class="fw-bold" th:text="${product.name}">Product Name</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted fw-semibold">M&#244; t&#7843;</td>
+                            <td th:text="${product.description != null ? product.description : 'Kh&#244;ng c&#243; m&#244; t&#7843;'}">Description</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted fw-semibold">Danh m&#7909;c</td>
+                            <td><span class="badge bg-light text-dark" th:text="${product.categoryName}">Category</span></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted fw-semibold">Nh&#224; cung c&#7845;p</td>
+                            <td th:text="${product.supplierName != null ? product.supplierName : 'Ch&#432;a g&#225;n'}">Supplier</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted fw-semibold">&#272;&#417;n v&#7883; t&#237;nh</td>
+                            <td th:text="${product.unit}">C&#225;i</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted fw-semibold">Gi&#225; b&#225;n</td>
+                            <td class="text-success fw-bold" th:text="${#numbers.formatDecimal(product.sellingPrice, 0, 'COMMA', 0, 'POINT') + ' &#8363;'}">100,000 &#8363;</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted fw-semibold">Gi&#225; v&#7889;n</td>
+                            <td th:text="${#numbers.formatDecimal(product.costPrice, 0, 'COMMA', 0, 'POINT') + ' &#8363;'}">80,000 &#8363;</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted fw-semibold">M&#7913;c t&#7891;n min/max</td>
+                            <td><span th:text="${product.minQuantity}">10</span> / <span th:text="${product.maxQuantity}">1000</span></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted fw-semibold">&#272;i&#7875;m &#273;&#7863;t h&#224;ng l&#7841;i</td>
+                            <td th:text="${product.reorderPoint}">50</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted fw-semibold">T&#7893;ng t&#7891;n kho</td>
+                            <td>
+                                <span class="h5 fw-bold me-2" th:text="${product.totalStock}">150</span>
+                                <span th:replace="~{layout/fragments :: stockLevelBadge(${product.stockLevel})}"></span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stock per Warehouse -->
+        <div class="col-lg-7">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0 fw-bold"><i class="fas fa-warehouse text-info me-2"></i>T&#7891;n kho theo kho</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Kho h&#224;ng</th>
+                                    <th class="text-center">S&#7889; l&#432;&#7907;ng</th>
+                                    <th class="text-center">T&#7889;i thi&#7875;u</th>
+                                    <th class="text-center">T&#7889;i &#273;a</th>
+                                    <th class="text-center">Tr&#7841;ng th&#225;i</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="ws : ${warehouseStocks}" th:if="${warehouseStocks != null}">
+                                    <td>
+                                        <a th:href="@{/warehouses/{id}(id=${ws.warehouseId})}" class="text-decoration-none"
+                                           th:text="${ws.warehouseName}">Kho A</a>
+                                    </td>
+                                    <td class="text-center fw-bold" th:text="${ws.quantity}">100</td>
+                                    <td class="text-center" th:text="${ws.minQuantity}">10</td>
+                                    <td class="text-center" th:text="${ws.maxQuantity}">500</td>
+                                    <td class="text-center">
+                                        <span th:replace="~{layout/fragments :: stockLevelBadge(${ws.stockLevel})}"></span>
+                                    </td>
+                                </tr>
+                                <tr th:if="${warehouseStocks == null or #lists.isEmpty(warehouseStocks)}">
+                                    <td colspan="5" class="text-center text-muted py-3">Ch&#432;a c&#243; t&#7891;n kho</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stock Level Trend Chart -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0 fw-bold"><i class="fas fa-chart-area text-primary me-2"></i>Bi&#7871;n &#273;&#7897;ng t&#7891;n kho</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="productStockChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stock Movement History -->
+    <div class="card shadow-sm mt-4">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h6 class="mb-0 fw-bold"><i class="fas fa-history text-warning me-2"></i>L&#7883;ch s&#7917; nh&#7853;p/xu&#7845;t</h6>
+            <a th:href="@{/stock(productId=${product.id})}" class="btn btn-sm btn-outline-primary">Xem t&#7845;t c&#7843;</a>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Ng&#224;y</th>
+                            <th>Lo&#7841;i</th>
+                            <th>Kho</th>
+                            <th class="text-center">S&#7889; l&#432;&#7907;ng</th>
+                            <th>L&#253; do</th>
+                            <th>Ng&#432;&#7901;i t&#7841;o</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="mov : ${movements}" th:if="${movements != null}">
+                            <td th:text="${#temporals.format(mov.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</td>
+                            <td>
+                                <span th:replace="~{layout/fragments :: movementTypeBadge(${mov.type})}"></span>
+                            </td>
+                            <td th:text="${mov.warehouseName}">Kho A</td>
+                            <td class="text-center fw-bold" th:text="${mov.quantity}">100</td>
+                            <td th:text="${mov.reason}">Nh&#7853;p h&#224;ng m&#7899;i</td>
+                            <td th:text="${mov.createdBy}">Admin</td>
+                        </tr>
+                        <tr th:if="${movements == null or #lists.isEmpty(movements)}">
+                            <td colspan="6" class="text-center text-muted py-3">Ch&#432;a c&#243; l&#7883;ch s&#7917;</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<th:block th:fragment="scripts">
+    <script>
+        // Product Stock Level Trend Chart
+        var ctx = document.getElementById('productStockChart');
+        if (ctx) {
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'],
+                    datasets: [{
+                        label: 'T&#7891;n kho',
+                        data: [120, 115, 130, 125, 110, 95, 140, 135, 128, 150, 145, 138],
+                        borderColor: '#4e73df',
+                        backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }, {
+                        label: 'M&#7913;c t&#7889;i thi&#7875;u',
+                        data: [50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50],
+                        borderColor: '#e74a3b',
+                        borderDash: [5, 5],
+                        fill: false,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+    </script>
+</th:block>
+
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: html}">
+<body>
+<div th:fragment="content">
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-1"><i class="fas fa-bell text-danger me-2"></i>C&#7843;nh b&#225;o h&#7879; th&#7889;ng</h4>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a th:href="@{/}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">C&#7843;nh b&#225;o</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-outline-success btn-sm" onclick="markAllResolved()">
+                <i class="fas fa-check-double me-1"></i>&#272;&#225;nh d&#7845;u t&#7845;t c&#7843; &#273;&#227; x&#7917; l&#253;
+            </button>
+        </div>
+    </div>
+
+    <!-- Alert Messages -->
+    <div th:replace="~{layout/fragments :: alertMessage}"></div>
+
+    <!-- Filters -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form th:action="@{/alerts}" method="get" class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Lo&#7841;i c&#7843;nh b&#225;o</label>
+                    <select class="form-select" name="type">
+                        <option value="">T&#7845;t c&#7843;</option>
+                        <option value="LOW_STOCK" th:selected="${type == 'LOW_STOCK'}">T&#7891;n kho th&#7845;p</option>
+                        <option value="OVER_STOCK" th:selected="${type == 'OVER_STOCK'}">V&#432;&#7907;t m&#7913;c t&#7891;n</option>
+                        <option value="EXPIRING" th:selected="${type == 'EXPIRING'}">S&#7855;p h&#7871;t h&#7841;n</option>
+                        <option value="ANOMALY" th:selected="${type == 'ANOMALY'}">B&#7845;t th&#432;&#7901;ng</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">M&#7913;c &#273;&#7897;</label>
+                    <select class="form-select" name="severity">
+                        <option value="">T&#7845;t c&#7843;</option>
+                        <option value="HIGH" th:selected="${severity == 'HIGH'}">Cao</option>
+                        <option value="MEDIUM" th:selected="${severity == 'MEDIUM'}">Trung b&#236;nh</option>
+                        <option value="LOW" th:selected="${severity == 'LOW'}">Th&#7845;p</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <!-- Status Tabs -->
+                    <label class="form-label fw-semibold">Tr&#7841;ng th&#225;i</label>
+                    <select class="form-select" name="resolved">
+                        <option value="">T&#7845;t c&#7843;</option>
+                        <option value="false" th:selected="${resolved == 'false'}">Ch&#432;a x&#7917; l&#253;</option>
+                        <option value="true" th:selected="${resolved == 'true'}">&#272;&#227; x&#7917; l&#253;</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-outline-primary w-100">
+                        <i class="fas fa-filter me-1"></i>L&#7885;c
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Alerts Table -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table id="alertsTable" class="table table-striped table-hover mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Th&#7901;i gian</th>
+                            <th>S&#7843;n ph&#7849;m</th>
+                            <th>Kho</th>
+                            <th class="text-center">Lo&#7841;i</th>
+                            <th class="text-center">M&#7913;c &#273;&#7897;</th>
+                            <th>N&#7897;i dung</th>
+                            <th class="text-center">Tr&#7841;ng th&#225;i</th>
+                            <th class="text-center" style="width: 100px;">Thao t&#225;c</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="alert : ${alerts}" th:classappend="${!alert.resolved ? 'table-warning' : ''}">
+                            <td th:text="${#temporals.format(alert.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</td>
+                            <td>
+                                <a th:href="@{/products/{id}(id=${alert.productId})}" class="text-decoration-none fw-semibold"
+                                   th:text="${alert.productName}" th:if="${alert.productId != null}">Product</a>
+                                <span th:if="${alert.productId == null}" class="text-muted">-</span>
+                            </td>
+                            <td th:text="${alert.warehouseName != null ? alert.warehouseName : '-'}">Kho A</td>
+                            <td class="text-center">
+                                <span class="badge" th:classappend="${alert.type == 'LOW_STOCK' ? 'bg-danger' : (alert.type == 'OVER_STOCK' ? 'bg-info' : (alert.type == 'EXPIRING' ? 'bg-warning text-dark' : 'bg-dark'))}"
+                                      th:text="${alert.type == 'LOW_STOCK' ? 'T&#7891;n kho th&#7845;p' : (alert.type == 'OVER_STOCK' ? 'V&#432;&#7907;t m&#7913;c' : (alert.type == 'EXPIRING' ? 'S&#7855;p h&#7871;t h&#7841;n' : 'B&#7845;t th&#432;&#7901;ng'))}">Type</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge rounded-pill" th:classappend="${alert.severity == 'HIGH' ? 'bg-danger' : (alert.severity == 'MEDIUM' ? 'bg-warning text-dark' : 'bg-info')}"
+                                      th:text="${alert.severity == 'HIGH' ? 'Cao' : (alert.severity == 'MEDIUM' ? 'TB' : 'Th&#7845;p')}">Severity</span>
+                            </td>
+                            <td th:text="${alert.message}">Alert message</td>
+                            <td class="text-center">
+                                <span th:if="${alert.resolved}" class="badge bg-success"><i class="fas fa-check me-1"></i>&#272;&#227; x&#7917; l&#253;</span>
+                                <span th:unless="${alert.resolved}" class="badge bg-warning text-dark"><i class="fas fa-clock me-1"></i>Ch&#432;a x&#7917; l&#253;</span>
+                            </td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-sm btn-outline-success" title="&#272;&#225;nh d&#7845;u &#273;&#227; x&#7917; l&#253;"
+                                        th:unless="${alert.resolved}"
+                                        data-bs-toggle="modal" data-bs-target="#resolveModal"
+                                        th:data-alert-id="${alert.id}">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <span th:if="${alert.resolved}" class="text-success"><i class="fas fa-check-circle"></i></span>
+                            </td>
+                        </tr>
+                        <tr th:if="${alerts == null or #lists.isEmpty(alerts)}">
+                            <td colspan="8" class="text-center text-muted py-5">
+                                <i class="fas fa-bell-slash fa-3x mb-3 d-block"></i>
+                                Kh&#244;ng c&#243; c&#7843;nh b&#225;o n&#224;o
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer bg-white" th:if="${page != null}">
+            <div th:replace="~{layout/fragments :: pagination(${page})}"></div>
+        </div>
+    </div>
+
+    <!-- Resolve Confirmation Modal -->
+    <div class="modal fade" id="resolveModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title"><i class="fas fa-check-circle me-2"></i>X&#225;c nh&#7853;n x&#7917; l&#253;</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>B&#7841;n x&#225;c nh&#7853;n &#273;&#227; x&#7917; l&#253; c&#7843;nh b&#225;o n&#224;y?</p>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Ghi ch&#250; (t&#249;y ch&#7885;n)</label>
+                        <textarea class="form-control" id="resolveNote" rows="2" placeholder="Ghi ch&#250; v&#7873; c&#225;ch x&#7917; l&#253;..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">H&#7911;y</button>
+                    <form id="resolveForm" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-success"><i class="fas fa-check me-1"></i>X&#225;c nh&#7853;n</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<th:block th:fragment="scripts">
+    <script>
+        var resolveModal = document.getElementById('resolveModal');
+        if (resolveModal) {
+            resolveModal.addEventListener('show.bs.modal', function (event) {
+                var alertId = event.relatedTarget.getAttribute('data-alert-id');
+                document.getElementById('resolveForm').action = '/alerts/' + alertId + '/resolve';
+            });
+        }
+
+        function markAllResolved() {
+            if (confirm('\u0110\u00E1nh d\u1EA5u t\u1EA5t c\u1EA3 c\u1EA3nh b\u00E1o l\u00E0 \u0111\u00E3 x\u1EED l\u00FD?')) {
+                fetch('/api/alerts/resolve-all', { method: 'POST' })
+                    .then(function() { location.reload(); })
+                    .catch(function(err) { alert('C\u00F3 l\u1ED7i x\u1EA3y ra'); });
+            }
+        }
+    </script>
+</th:block>
+
+</body>
+</html>

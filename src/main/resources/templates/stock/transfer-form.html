@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: html}">
+<body>
+<div th:fragment="content">
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-1"><i class="fas fa-exchange-alt text-primary me-2"></i>T&#7841;o phi&#7871;u nh&#7853;p/xu&#7845;t kho</h4>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a th:href="@{/}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a th:href="@{/stock}">Nh&#7853;p/Xu&#7845;t kho</a></li>
+                    <li class="breadcrumb-item active">T&#7841;o phi&#7871;u</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Alert Messages -->
+    <div th:replace="~{layout/fragments :: alertMessage}"></div>
+
+    <!-- Transfer Form -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <h6 class="mb-0 fw-bold"><i class="fas fa-file-alt text-primary me-2"></i>Th&#244;ng tin phi&#7871;u</h6>
+        </div>
+        <div class="card-body">
+            <form th:action="@{/stock}" th:object="${movement}" method="post" id="movementForm" class="needs-validation" novalidate="novalidate">
+
+                <div class="row g-3">
+                    <!-- Movement Type -->
+                    <div class="col-md-4">
+                        <label for="type" class="form-label fw-semibold">Lo&#7841;i phi&#7871;u <span class="text-danger">*</span></label>
+                        <select class="form-select" id="type" th:field="*{type}" required="required" onchange="toggleWarehouseFields()">
+                            <option value="">-- Ch&#7885;n lo&#7841;i --</option>
+                            <option value="INBOUND">Nh&#7853;p kho</option>
+                            <option value="OUTBOUND">Xu&#7845;t kho</option>
+                            <option value="TRANSFER">Chuy&#7875;n kho</option>
+                            <option value="ADJUSTMENT">&#272;i&#7873;u ch&#7881;nh</option>
+                        </select>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('type')}" th:errors="*{type}">Type error</div>
+                    </div>
+
+                    <!-- From Warehouse -->
+                    <div class="col-md-4" id="fromWarehouseGroup" style="display: none;">
+                        <label for="fromWarehouseId" class="form-label fw-semibold">T&#7915; kho <span class="text-danger">*</span></label>
+                        <select class="form-select" id="fromWarehouseId" th:field="*{fromWarehouseId}">
+                            <option value="">-- Ch&#7885;n kho --</option>
+                            <option th:each="wh : ${warehouses}" th:value="${wh.id}" th:text="${wh.name}">Kho A</option>
+                        </select>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('fromWarehouseId')}" th:errors="*{fromWarehouseId}">Warehouse error</div>
+                    </div>
+
+                    <!-- To Warehouse -->
+                    <div class="col-md-4" id="toWarehouseGroup" style="display: none;">
+                        <label for="toWarehouseId" class="form-label fw-semibold">&#272;&#7871;n kho <span class="text-danger">*</span></label>
+                        <select class="form-select" id="toWarehouseId" th:field="*{toWarehouseId}">
+                            <option value="">-- Ch&#7885;n kho --</option>
+                            <option th:each="wh : ${warehouses}" th:value="${wh.id}" th:text="${wh.name}">Kho B</option>
+                        </select>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('toWarehouseId')}" th:errors="*{toWarehouseId}">Warehouse error</div>
+                    </div>
+
+                    <!-- Warehouse for Adjustment -->
+                    <div class="col-md-4" id="warehouseGroup" style="display: none;">
+                        <label for="warehouseId" class="form-label fw-semibold">Kho <span class="text-danger">*</span></label>
+                        <select class="form-select" id="warehouseId" name="warehouseId">
+                            <option value="">-- Ch&#7885;n kho --</option>
+                            <option th:each="wh : ${warehouses}" th:value="${wh.id}" th:text="${wh.name}">Kho A</option>
+                        </select>
+                    </div>
+                </div>
+
+                <hr class="my-4"/>
+
+                <div class="row g-3">
+                    <!-- Product -->
+                    <div class="col-md-6">
+                        <label for="productId" class="form-label fw-semibold">S&#7843;n ph&#7849;m <span class="text-danger">*</span></label>
+                        <select class="form-select" id="productId" th:field="*{productId}" required="required">
+                            <option value="">-- T&#236;m v&#224; ch&#7885;n s&#7843;n ph&#7849;m --</option>
+                            <option th:each="prod : ${products}" th:value="${prod.id}"
+                                    th:text="${prod.sku + ' - ' + prod.name}">SKU - Product</option>
+                        </select>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('productId')}" th:errors="*{productId}">Product error</div>
+                    </div>
+
+                    <!-- Quantity -->
+                    <div class="col-md-3">
+                        <label for="quantity" class="form-label fw-semibold">S&#7889; l&#432;&#7907;ng <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="quantity" th:field="*{quantity}"
+                               min="1" placeholder="0" required="required"/>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}">Quantity error</div>
+                    </div>
+
+                    <!-- Current Stock Info -->
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">T&#7891;n kho hi&#7879;n t&#7841;i</label>
+                        <div class="form-control bg-light" id="currentStockInfo">
+                            <span class="text-muted">Ch&#7885;n s&#7843;n ph&#7849;m</span>
+                        </div>
+                    </div>
+
+                    <!-- Reason -->
+                    <div class="col-12">
+                        <label for="reason" class="form-label fw-semibold">L&#253; do <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="reason" th:field="*{reason}" rows="3"
+                                  placeholder="Nh&#7853;p l&#253; do nh&#7853;p/xu&#7845;t/chuy&#7875;n kho..." required="required"></textarea>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('reason')}" th:errors="*{reason}">Reason error</div>
+                    </div>
+                </div>
+
+                <!-- Summary Info -->
+                <div class="alert alert-info mt-4" id="movementSummary" style="display: none;">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <span id="summaryText"></span>
+                </div>
+
+                <!-- Buttons -->
+                <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                    <a th:href="@{/stock}" class="btn btn-secondary">
+                        <i class="fas fa-times me-1"></i>H&#7911;y
+                    </a>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        <i class="fas fa-check me-1"></i>X&#225;c nh&#7853;n
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+<th:block th:fragment="scripts">
+    <script th:src="@{/js/stock-movement.js}"></script>
+</th:block>
+
+</body>
+</html>

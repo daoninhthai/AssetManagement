@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: html}">
+<body>
+<div th:fragment="content">
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-1"><i class="fas fa-warehouse text-primary me-2"></i>Qu&#7843;n l&#253; kho h&#224;ng</h4>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a th:href="@{/}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Kho h&#224;ng</li>
+                </ol>
+            </nav>
+        </div>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addWarehouseModal">
+            <i class="fas fa-plus me-1"></i>Th&#234;m kho m&#7899;i
+        </button>
+    </div>
+
+    <!-- Alert Messages -->
+    <div th:replace="~{layout/fragments :: alertMessage}"></div>
+
+    <!-- Warehouse Cards Grid -->
+    <div class="row g-4">
+        <div class="col-xl-4 col-md-6" th:each="warehouse : ${warehouses}">
+            <div class="card shadow-sm warehouse-card h-100">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-bold">
+                        <i class="fas fa-warehouse text-primary me-2"></i>
+                        <span th:text="${warehouse.name}">Kho A</span>
+                    </h6>
+                    <div>
+                        <span class="badge" th:classappend="${warehouse.type == 'MAIN' ? 'bg-primary' : (warehouse.type == 'TRANSIT' ? 'bg-info' : 'bg-secondary')}"
+                              th:text="${warehouse.type == 'MAIN' ? 'Kho ch&#237;nh' : (warehouse.type == 'TRANSIT' ? 'Kho trung chuy&#7875;n' : 'Kho ph&#7909;')}">Kho ch&#237;nh</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="mb-2">
+                        <small class="text-muted"><i class="fas fa-barcode me-1"></i>M&#227;:</small>
+                        <code th:text="${warehouse.code}">WH-01</code>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i>&#272;&#7883;a ch&#7881;:</small>
+                        <span th:text="${warehouse.address != null ? warehouse.address : 'Ch&#432;a c&#7853;p nh&#7853;t'}">123 Street</span>
+                    </div>
+
+                    <!-- Capacity Progress Bar -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small class="fw-semibold">S&#7913;c ch&#7913;a</small>
+                            <small th:text="${warehouse.currentStock + ' / ' + warehouse.capacity}">750 / 1000</small>
+                        </div>
+                        <div class="progress" style="height: 10px;">
+                            <div class="progress-bar"
+                                 th:classappend="${warehouse.usagePercent > 90 ? 'bg-danger' : (warehouse.usagePercent > 70 ? 'bg-warning' : 'bg-success')}"
+                                 role="progressbar"
+                                 th:style="'width: ' + ${warehouse.usagePercent} + '%'"
+                                 th:attr="aria-valuenow=${warehouse.usagePercent}"
+                                 aria-valuemin="0" aria-valuemax="100">
+                            </div>
+                        </div>
+                        <small class="text-muted" th:text="${warehouse.usagePercent + '% &#273;&#227; s&#7917; d&#7909;ng'}">75% &#273;&#227; s&#7917; d&#7909;ng</small>
+                    </div>
+
+                    <!-- Stats -->
+                    <div class="row text-center border-top pt-3">
+                        <div class="col-4">
+                            <div class="fw-bold text-primary" th:text="${warehouse.productCount}">125</div>
+                            <small class="text-muted">S&#7843;n ph&#7849;m</small>
+                        </div>
+                        <div class="col-4">
+                            <div class="fw-bold text-success" th:text="${warehouse.currentStock}">750</div>
+                            <small class="text-muted">T&#7891;n kho</small>
+                        </div>
+                        <div class="col-4">
+                            <div class="fw-bold text-danger" th:text="${warehouse.lowStockCount}">5</div>
+                            <small class="text-muted">S&#7855;p h&#7871;t</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-white text-center">
+                    <a th:href="@{/warehouses/{id}(id=${warehouse.id})}" class="btn btn-outline-primary btn-sm w-100">
+                        <i class="fas fa-eye me-1"></i>Xem chi ti&#7871;t
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="col-12" th:if="${warehouses == null or #lists.isEmpty(warehouses)}">
+            <div class="text-center py-5 text-muted">
+                <i class="fas fa-warehouse fa-3x mb-3 d-block"></i>
+                <p class="lead">Ch&#432;a c&#243; kho h&#224;ng n&#224;o</p>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addWarehouseModal">
+                    <i class="fas fa-plus me-1"></i>Th&#234;m kho &#273;&#7847;u ti&#234;n
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Warehouse Modal -->
+    <div class="modal fade" id="addWarehouseModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form th:action="@{/warehouses}" method="post">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title"><i class="fas fa-plus-circle me-2"></i>Th&#234;m kho m&#7899;i</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">T&#234;n kho <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="name" required="required" placeholder="V&#237; d&#7909;: Kho H&#224; N&#7897;i"/>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">M&#227; kho <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="code" required="required" placeholder="WH-01"/>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Lo&#7841;i kho</label>
+                                <select class="form-select" name="type">
+                                    <option value="MAIN">Kho ch&#237;nh</option>
+                                    <option value="TRANSIT">Kho trung chuy&#7875;n</option>
+                                    <option value="SUB">Kho ph&#7909;</option>
+                                </select>
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label fw-semibold">&#272;&#7883;a ch&#7881;</label>
+                                <input type="text" class="form-control" name="address" placeholder="&#272;&#7883;a ch&#7881; kho h&#224;ng"/>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">S&#7913;c ch&#7913;a</label>
+                                <input type="number" class="form-control" name="capacity" min="1" placeholder="1000"/>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Ghi ch&#250;</label>
+                                <textarea class="form-control" name="notes" rows="2" placeholder="Ghi ch&#250; th&#234;m..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">H&#7911;y</button>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>L&#432;u</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

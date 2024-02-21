@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: html}">
+<body>
+<div th:fragment="content">
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-1"><i class="fas fa-box text-primary me-2"></i>Qu&#7843;n l&#253; s&#7843;n ph&#7849;m</h4>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a th:href="@{/}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">S&#7843;n ph&#7849;m</li>
+                </ol>
+            </nav>
+        </div>
+        <a th:href="@{/products/new}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i>Th&#234;m s&#7843;n ph&#7849;m
+        </a>
+    </div>
+
+    <!-- Alert Messages -->
+    <div th:replace="~{layout/fragments :: alertMessage}"></div>
+
+    <!-- Filters -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form th:action="@{/products}" method="get" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">T&#236;m ki&#7871;m</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" class="form-control" name="keyword" th:value="${keyword}"
+                               placeholder="SKU, t&#234;n s&#7843;n ph&#7849;m..."/>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Danh m&#7909;c</label>
+                    <select class="form-select" name="categoryId">
+                        <option value="">T&#7845;t c&#7843; danh m&#7909;c</option>
+                        <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"
+                                th:selected="${categoryId != null and categoryId == cat.id}">Category</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Tr&#7841;ng th&#225;i t&#7891;n kho</label>
+                    <select class="form-select" name="stockLevel">
+                        <option value="">T&#7845;t c&#7843;</option>
+                        <option value="LOW" th:selected="${stockLevel == 'LOW'}">Th&#7845;p</option>
+                        <option value="WARNING" th:selected="${stockLevel == 'WARNING'}">C&#7843;nh b&#225;o</option>
+                        <option value="OK" th:selected="${stockLevel == 'OK'}">&#7892;n &#273;&#7883;nh</option>
+                        <option value="OVER" th:selected="${stockLevel == 'OVER'}">V&#432;&#7907;t m&#7913;c</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-outline-primary w-100">
+                        <i class="fas fa-filter me-1"></i>L&#7885;c
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Products Table -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table id="productsTable" class="table table-striped table-hover mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>SKU</th>
+                            <th>T&#234;n s&#7843;n ph&#7849;m</th>
+                            <th>Danh m&#7909;c</th>
+                            <th class="text-end">&#272;&#417;n gi&#225;</th>
+                            <th class="text-center">T&#7891;n kho</th>
+                            <th class="text-center">Tr&#7841;ng th&#225;i</th>
+                            <th class="text-center" style="width: 120px;">Thao t&#225;c</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="product : ${products}">
+                            <td>
+                                <code class="text-primary" th:text="${product.sku}">SKU001</code>
+                            </td>
+                            <td>
+                                <a th:href="@{/products/{id}(id=${product.id})}" class="text-decoration-none fw-semibold"
+                                   th:text="${product.name}">Product Name</a>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark" th:text="${product.categoryName}">Category</span>
+                            </td>
+                            <td class="text-end" th:text="${#numbers.formatDecimal(product.sellingPrice, 0, 'COMMA', 0, 'POINT') + ' &#8363;'}">100,000 &#8363;</td>
+                            <td class="text-center">
+                                <span class="fw-bold" th:text="${product.totalStock}">150</span>
+                            </td>
+                            <td class="text-center">
+                                <span th:replace="~{layout/fragments :: stockLevelBadge(${product.stockLevel})}"></span>
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a th:href="@{/products/{id}/edit(id=${product.id})}" class="btn btn-outline-primary"
+                                       title="Ch&#7881;nh s&#7917;a">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-outline-danger" title="X&#243;a"
+                                            data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                            th:data-product-id="${product.id}" th:data-product-name="${product.name}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${products == null or #lists.isEmpty(products)}">
+                            <td colspan="7" class="text-center py-5 text-muted">
+                                <i class="fas fa-box-open fa-3x mb-3 d-block"></i>
+                                Kh&#244;ng t&#236;m th&#7845;y s&#7843;n ph&#7849;m n&#224;o
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer bg-white" th:if="${page != null}">
+            <div th:replace="~{layout/fragments :: pagination(${page})}"></div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="deleteModalLabel">
+                        <i class="fas fa-exclamation-triangle me-2"></i>X&#225;c nh&#7853;n x&#243;a
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>B&#7841;n c&#243; ch&#7855;c ch&#7855;n mu&#7889;n x&#243;a s&#7843;n ph&#7849;m <strong id="deleteProductName"></strong>?</p>
+                    <p class="text-danger mb-0"><small>H&#224;nh &#273;&#7897;ng n&#224;y kh&#244;ng th&#7875; ho&#224;n t&#225;c.</small></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">H&#7911;y</button>
+                    <form id="deleteForm" method="post" class="d-inline">
+                        <input type="hidden" name="_method" value="DELETE"/>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-1"></i>X&#243;a
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<th:block th:fragment="scripts">
+    <script>
+        $(document).ready(function() {
+            // DataTable initialization (if not using server-side pagination)
+            if ($('#productsTable tbody tr').length > 1 || !$('#productsTable tbody tr td[colspan]').length) {
+                // only init if we have data rows
+            }
+
+            // Delete modal handler
+            var deleteModal = document.getElementById('deleteModal');
+            if (deleteModal) {
+                deleteModal.addEventListener('show.bs.modal', function (event) {
+                    var button = event.relatedTarget;
+                    var productId = button.getAttribute('data-product-id');
+                    var productName = button.getAttribute('data-product-name');
+                    document.getElementById('deleteProductName').textContent = productName;
+                    document.getElementById('deleteForm').action = '/products/' + productId + '/delete';
+                });
+            }
+        });
+    </script>
+</th:block>
+
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: html}">
+<body>
+<div th:fragment="content">
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-1"><i class="fas fa-shopping-cart text-primary me-2"></i>&#272;&#417;n &#273;&#7863;t h&#224;ng</h4>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a th:href="@{/}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">&#272;&#417;n &#273;&#7863;t h&#224;ng</li>
+                </ol>
+            </nav>
+        </div>
+        <a th:href="@{/orders/new}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i>T&#7841;o &#273;&#417;n m&#7899;i
+        </a>
+    </div>
+
+    <!-- Alert Messages -->
+    <div th:replace="~{layout/fragments :: alertMessage}"></div>
+
+    <!-- Status Filter Tabs -->
+    <ul class="nav nav-tabs mb-4" id="statusTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" th:classappend="${status == null or status == '' ? 'active' : ''}"
+               th:href="@{/orders}">
+                T&#7845;t c&#7843;
+                <span class="badge bg-secondary ms-1" th:text="${totalCount != null ? totalCount : '0'}">25</span>
+            </a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" th:classappend="${status == 'DRAFT' ? 'active' : ''}"
+               th:href="@{/orders(status='DRAFT')}">
+                Nh&#225;p
+                <span class="badge bg-secondary ms-1" th:text="${draftCount != null ? draftCount : '0'}">3</span>
+            </a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" th:classappend="${status == 'PENDING' ? 'active' : ''}"
+               th:href="@{/orders(status='PENDING')}">
+                Ch&#7901; duy&#7879;t
+                <span class="badge bg-warning text-dark ms-1" th:text="${pendingCount != null ? pendingCount : '0'}">8</span>
+            </a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" th:classappend="${status == 'APPROVED' ? 'active' : ''}"
+               th:href="@{/orders(status='APPROVED')}">
+                &#272;&#227; duy&#7879;t
+                <span class="badge bg-primary ms-1" th:text="${approvedCount != null ? approvedCount : '0'}">5</span>
+            </a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" th:classappend="${status == 'RECEIVED' ? 'active' : ''}"
+               th:href="@{/orders(status='RECEIVED')}">
+                &#272;&#227; nh&#7853;n
+                <span class="badge bg-success ms-1" th:text="${receivedCount != null ? receivedCount : '0'}">7</span>
+            </a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" th:classappend="${status == 'CANCELLED' ? 'active' : ''}"
+               th:href="@{/orders(status='CANCELLED')}">
+                &#272;&#227; h&#7911;y
+                <span class="badge bg-danger ms-1" th:text="${cancelledCount != null ? cancelledCount : '0'}">2</span>
+            </a>
+        </li>
+    </ul>
+
+    <!-- Orders Table -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table id="ordersTable" class="table table-striped table-hover mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>M&#227; &#273;&#417;n</th>
+                            <th>Nh&#224; cung c&#7845;p</th>
+                            <th>Ng&#224;y &#273;&#7863;t</th>
+                            <th>Ng&#224;y giao d&#7921; ki&#7871;n</th>
+                            <th class="text-end">T&#7893;ng ti&#7873;n</th>
+                            <th class="text-center">Tr&#7841;ng th&#225;i</th>
+                            <th class="text-center" style="width: 150px;">Thao t&#225;c</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="order : ${orders}">
+                            <td>
+                                <a th:href="@{/orders/{id}(id=${order.id})}" class="text-decoration-none fw-bold"
+                                   th:text="${order.orderNumber}">PO-2024001</a>
+                            </td>
+                            <td th:text="${order.supplierName}">Nh&#224; cung c&#7845;p A</td>
+                            <td th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy')}">01/01/2024</td>
+                            <td th:text="${order.expectedDeliveryDate != null ? #temporals.format(order.expectedDeliveryDate, 'dd/MM/yyyy') : '-'}">15/01/2024</td>
+                            <td class="text-end fw-bold" th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT') + ' &#8363;'}">5,000,000 &#8363;</td>
+                            <td class="text-center">
+                                <span th:replace="~{layout/fragments :: orderStatusBadge(${order.status})}"></span>
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm">
+                                    <a th:href="@{/orders/{id}(id=${order.id})}" class="btn btn-outline-primary" title="Xem chi ti&#7871;t">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a th:href="@{/orders/{id}/edit(id=${order.id})}" class="btn btn-outline-warning"
+                                       th:if="${order.status == 'DRAFT' or order.status == 'PENDING'}" title="Ch&#7881;nh s&#7917;a">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-outline-danger" title="H&#7911;y &#273;&#417;n"
+                                            th:if="${order.status != 'CANCELLED' and order.status != 'RECEIVED'}"
+                                            data-bs-toggle="modal" data-bs-target="#cancelModal"
+                                            th:data-order-id="${order.id}" th:data-order-number="${order.orderNumber}">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${orders == null or #lists.isEmpty(orders)}">
+                            <td colspan="7" class="text-center text-muted py-5">
+                                <i class="fas fa-shopping-cart fa-3x mb-3 d-block"></i>
+                                Kh&#244;ng c&#243; &#273;&#417;n h&#224;ng n&#224;o
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer bg-white" th:if="${page != null}">
+            <div th:replace="~{layout/fragments :: pagination(${page})}"></div>
+        </div>
+    </div>
+
+    <!-- Cancel Order Modal -->
+    <div class="modal fade" id="cancelModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title"><i class="fas fa-times-circle me-2"></i>H&#7911;y &#273;&#417;n h&#224;ng</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>B&#7841;n c&#243; ch&#7855;c ch&#7855;n mu&#7889;n h&#7911;y &#273;&#417;n <strong id="cancelOrderNumber"></strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">&#272;&#243;ng</button>
+                    <form id="cancelForm" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-danger"><i class="fas fa-times me-1"></i>X&#225;c nh&#7853;n h&#7911;y</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<th:block th:fragment="scripts">
+    <script>
+        var cancelModal = document.getElementById('cancelModal');
+        if (cancelModal) {
+            cancelModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                var orderId = button.getAttribute('data-order-id');
+                var orderNumber = button.getAttribute('data-order-number');
+                document.getElementById('cancelOrderNumber').textContent = orderNumber;
+                document.getElementById('cancelForm').action = '/orders/' + orderId + '/cancel';
+            });
+        }
+    </script>
+</th:block>
+
+</body>
+</html>

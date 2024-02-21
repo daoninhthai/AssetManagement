@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: html}">
+<body>
+<div th:fragment="content">
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-1">
+                <i class="fas fa-comment-dots text-primary me-2"></i>
+                H&#7887;i AI v&#7873; kho h&#224;ng
+                <span class="badge bg-success ms-2 ai-badge-glow">AI</span>
+            </h4>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a th:href="@{/}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a th:href="@{/ai}">AI Insights</a></li>
+                    <li class="breadcrumb-item active">H&#7887;i AI</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Chat Area -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0 fw-bold"><i class="fas fa-robot text-primary me-2"></i>AI Assistant</h6>
+                </div>
+                <div class="card-body" id="chatArea" style="height: 500px; overflow-y: auto; background: #f8f9fc;">
+                    <!-- Welcome Message -->
+                    <div class="d-flex mb-3">
+                        <div class="flex-shrink-0">
+                            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                <i class="fas fa-robot text-white"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="card bg-white">
+                                <div class="card-body py-2 px-3">
+                                    <p class="mb-1">Xin ch&#224;o! T&#244;i l&#224; AI Assistant c&#7911;a h&#7879; th&#7889;ng Smart Inventory. T&#244;i c&#243; th&#7875; gi&#250;p b&#7841;n:</p>
+                                    <ul class="mb-0 small">
+                                        <li>Tra c&#7913;u th&#244;ng tin t&#7891;n kho</li>
+                                        <li>Ph&#226;n t&#237;ch xu h&#432;&#7899;ng b&#225;n h&#224;ng</li>
+                                        <li>D&#7921; &#273;o&#225;n nhu c&#7847;u s&#7843;n ph&#7849;m</li>
+                                        <li>G&#7907;i &#253; &#273;&#7863;t h&#224;ng t&#7889;i &#432;u</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <small class="text-muted">AI Assistant</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input Area -->
+                <div class="card-footer bg-white">
+                    <div class="input-group">
+                        <textarea class="form-control" id="chatInput" rows="2"
+                                  placeholder="H&#7887;i v&#7873; kho h&#224;ng b&#7857;ng ti&#7871;ng Vi&#7879;t ho&#7863;c ti&#7871;ng Anh..."
+                                  onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendChat(); }"></textarea>
+                        <button class="btn btn-primary" type="button" onclick="sendChat()">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Example Queries -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0 fw-bold"><i class="fas fa-lightbulb text-warning me-2"></i>C&#226;u h&#7887;i m&#7851;u</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex flex-wrap gap-2">
+                        <button class="btn btn-outline-primary btn-sm rounded-pill query-chip"
+                                onclick="setAndSend('S&#7843;n ph&#7849;m n&#224;o s&#7855;p h&#7871;t h&#224;ng?')">
+                            S&#7843;n ph&#7849;m n&#224;o s&#7855;p h&#7871;t h&#224;ng?
+                        </button>
+                        <button class="btn btn-outline-success btn-sm rounded-pill query-chip"
+                                onclick="setAndSend('Top 10 s&#7843;n ph&#7849;m b&#225;n ch&#7841;y')">
+                            Top 10 s&#7843;n ph&#7849;m b&#225;n ch&#7841;y
+                        </button>
+                        <button class="btn btn-outline-info btn-sm rounded-pill query-chip"
+                                onclick="setAndSend('Kho n&#224;o c&#242;n nhi&#7873;u ch&#7895; tr&#7889;ng?')">
+                            Kho n&#224;o c&#242;n nhi&#7873;u ch&#7895; tr&#7889;ng?
+                        </button>
+                        <button class="btn btn-outline-warning btn-sm rounded-pill query-chip"
+                                onclick="setAndSend('T&#7893;ng gi&#225; tr&#7883; t&#7891;n kho hi&#7879;n t&#7841;i?')">
+                            T&#7893;ng gi&#225; tr&#7883; t&#7891;n kho?
+                        </button>
+                        <button class="btn btn-outline-danger btn-sm rounded-pill query-chip"
+                                onclick="setAndSend('S&#7843;n ph&#7849;m n&#224;o c&#243; bi&#7871;n &#273;&#7897;ng b&#7845;t th&#432;&#7901;ng?')">
+                            Bi&#7871;n &#273;&#7897;ng b&#7845;t th&#432;&#7901;ng?
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm rounded-pill query-chip"
+                                onclick="setAndSend('Nh&#224; cung c&#7845;p n&#224;o t&#7889;t nh&#7845;t?')">
+                            NCC t&#7889;t nh&#7845;t?
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat History -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0 fw-bold"><i class="fas fa-history text-muted me-2"></i>L&#7883;ch s&#7917; h&#7887;i</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush" id="chatHistory">
+                        <div class="list-group-item text-center text-muted py-3 small">
+                            Ch&#432;a c&#243; l&#7883;ch s&#7917;
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<th:block th:fragment="scripts">
+    <script>
+        function sendChat() {
+            var input = document.getElementById('chatInput');
+            var question = input.value.trim();
+            if (!question) return;
+
+            // Add user message
+            addMessage(question, 'user');
+            input.value = '';
+
+            // Add typing indicator
+            var typingId = 'typing-' + Date.now();
+            addTypingIndicator(typingId);
+
+            // Add to history
+            addToHistory(question);
+
+            // Send to API
+            fetch('/api/ai/query', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ question: question })
+            })
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                removeTypingIndicator(typingId);
+                addMessage(data.answer || 'AI \u0111ang x\u1EED l\u00FD c\u00E2u h\u1ECFi c\u1EE7a b\u1EA1n...', 'ai', data.confidence, data.sources);
+            })
+            .catch(function(error) {
+                removeTypingIndicator(typingId);
+                addMessage('Xin l\u1ED7i, t\u00F4i kh\u00F4ng th\u1EC3 x\u1EED l\u00FD c\u00E2u h\u1ECFi l\u00FAc n\u00E0y. Vui l\u00F2ng th\u1EED l\u1EA1i sau.', 'ai');
+            });
+        }
+
+        function setAndSend(text) {
+            document.getElementById('chatInput').value = text;
+            sendChat();
+        }
+
+        function addMessage(text, sender, confidence, sources) {
+            var chatArea = document.getElementById('chatArea');
+            var isUser = sender === 'user';
+            var html = '<div class="d-flex mb-3 ' + (isUser ? 'justify-content-end' : '') + '">';
+
+            if (!isUser) {
+                html += '<div class="flex-shrink-0"><div class="rounded-circle bg-primary d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;"><i class="fas fa-robot text-white"></i></div></div>';
+            }
+
+            html += '<div class="' + (isUser ? 'me-3' : 'flex-grow-1 ms-3') + '" style="max-width: 75%;">';
+            html += '<div class="card ' + (isUser ? 'bg-primary text-white' : 'bg-white') + '">';
+            html += '<div class="card-body py-2 px-3">' + text + '</div>';
+
+            if (confidence) {
+                html += '<div class="card-footer py-1 px-3 bg-transparent border-top"><small class="text-muted">\u0110\u1ED9 tin c\u1EADy: ' + confidence + '%</small>';
+                if (sources) html += ' | <small class="text-muted">Ngu\u1ED3n: ' + sources + '</small>';
+                html += '</div>';
+            }
+
+            html += '</div>';
+            html += '<small class="text-muted">' + (isUser ? 'B\u1EA1n' : 'AI Assistant') + ' - ' + new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute: '2-digit'}) + '</small>';
+            html += '</div>';
+
+            if (isUser) {
+                html += '<div class="flex-shrink-0"><div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;"><i class="fas fa-user text-white"></i></div></div>';
+            }
+
+            html += '</div>';
+            chatArea.insertAdjacentHTML('beforeend', html);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function addTypingIndicator(id) {
+            var chatArea = document.getElementById('chatArea');
+            var html = '<div class="d-flex mb-3" id="' + id + '">' +
+                '<div class="flex-shrink-0"><div class="rounded-circle bg-primary d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;"><i class="fas fa-robot text-white"></i></div></div>' +
+                '<div class="flex-grow-1 ms-3"><div class="card bg-white"><div class="card-body py-2 px-3">' +
+                '<div class="typing-dots"><span></span><span></span><span></span></div>' +
+                '</div></div></div></div>';
+            chatArea.insertAdjacentHTML('beforeend', html);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function removeTypingIndicator(id) {
+            var el = document.getElementById(id);
+            if (el) el.remove();
+        }
+
+        function addToHistory(question) {
+            var history = document.getElementById('chatHistory');
+            if (history.querySelector('.text-center')) history.innerHTML = '';
+
+            var item = '<a href="#" class="list-group-item list-group-item-action py-2" onclick="setAndSend(\'' + question.replace(/'/g, "\\'") + '\')">' +
+                '<small><i class="fas fa-comment me-1 text-muted"></i>' + question.substring(0, 40) + (question.length > 40 ? '...' : '') + '</small>' +
+                '</a>';
+            history.insertAdjacentHTML('afterbegin', item);
+        }
+    </script>
+</th:block>
+
+</body>
+</html>

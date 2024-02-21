@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: html}">
+<body>
+<div th:fragment="content">
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-1">
+                <i class="fas fa-warehouse text-primary me-2"></i>
+                <span th:text="${warehouse.name}">Kho A</span>
+                <span class="badge ms-2" th:classappend="${warehouse.type == 'MAIN' ? 'bg-primary' : (warehouse.type == 'TRANSIT' ? 'bg-info' : 'bg-secondary')}"
+                      th:text="${warehouse.type == 'MAIN' ? 'Kho ch&#237;nh' : (warehouse.type == 'TRANSIT' ? 'Kho trung chuy&#7875;n' : 'Kho ph&#7909;')}">Kho ch&#237;nh</span>
+            </h4>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a th:href="@{/}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a th:href="@{/warehouses}">Kho h&#224;ng</a></li>
+                    <li class="breadcrumb-item active" th:text="${warehouse.name}">Kho A</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editWarehouseModal">
+                <i class="fas fa-edit me-1"></i>Ch&#7881;nh s&#7917;a
+            </button>
+            <a th:href="@{/stock/new(warehouseId=${warehouse.id})}" class="btn btn-outline-success">
+                <i class="fas fa-plus me-1"></i>T&#7841;o phi&#7871;u nh&#7853;p/xu&#7845;t
+            </a>
+        </div>
+    </div>
+
+    <!-- Alert Messages -->
+    <div th:replace="~{layout/fragments :: alertMessage}"></div>
+
+    <!-- Warehouse Info Header -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white text-center">
+                <div class="card-body">
+                    <i class="fas fa-barcode fa-2x mb-2"></i>
+                    <div class="small">M&#227; kho</div>
+                    <div class="h5 fw-bold" th:text="${warehouse.code}">WH-01</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white text-center">
+                <div class="card-body">
+                    <i class="fas fa-boxes-stacked fa-2x mb-2"></i>
+                    <div class="small">T&#7893;ng t&#7891;n kho</div>
+                    <div class="h5 fw-bold" th:text="${warehouse.currentStock}">750</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white text-center">
+                <div class="card-body">
+                    <i class="fas fa-box fa-2x mb-2"></i>
+                    <div class="small">S&#7843;n ph&#7849;m</div>
+                    <div class="h5 fw-bold" th:text="${warehouse.productCount}">125</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center" th:classappend="${warehouse.usagePercent > 90 ? 'bg-danger text-white' : 'bg-warning text-dark'}">
+                <div class="card-body">
+                    <i class="fas fa-chart-pie fa-2x mb-2"></i>
+                    <div class="small">S&#7913;c ch&#7913;a</div>
+                    <div class="h5 fw-bold" th:text="${warehouse.usagePercent + '%'}">75%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stock Table -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h6 class="mb-0 fw-bold"><i class="fas fa-list text-primary me-2"></i>T&#7891;n kho trong kho</h6>
+            <div class="input-group" style="width: 300px;">
+                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                <input type="text" class="form-control" id="stockSearch" placeholder="T&#236;m s&#7843;n ph&#7849;m..."/>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table id="warehouseStockTable" class="table table-striped table-hover mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>S&#7843;n ph&#7849;m</th>
+                            <th>SKU</th>
+                            <th class="text-center">S&#7889; l&#432;&#7907;ng</th>
+                            <th class="text-center">T&#7889;i thi&#7875;u</th>
+                            <th class="text-center">T&#7889;i &#273;a</th>
+                            <th class="text-center">Tr&#7841;ng th&#225;i</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="stock : ${stocks}" th:if="${stocks != null}">
+                            <td>
+                                <a th:href="@{/products/{id}(id=${stock.productId})}" class="text-decoration-none fw-semibold"
+                                   th:text="${stock.productName}">Product Name</a>
+                            </td>
+                            <td><code th:text="${stock.sku}">SKU001</code></td>
+                            <td class="text-center fw-bold" th:text="${stock.quantity}">100</td>
+                            <td class="text-center" th:text="${stock.minQuantity}">10</td>
+                            <td class="text-center" th:text="${stock.maxQuantity}">500</td>
+                            <td class="text-center">
+                                <span th:replace="~{layout/fragments :: stockLevelBadge(${stock.stockLevel})}"></span>
+                            </td>
+                        </tr>
+                        <tr th:if="${stocks == null or #lists.isEmpty(stocks)}">
+                            <td colspan="6" class="text-center text-muted py-4">Kho n&#224;y ch&#432;a c&#243; s&#7843;n ph&#7849;m</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Movements -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h6 class="mb-0 fw-bold"><i class="fas fa-history text-warning me-2"></i>Ho&#7841;t &#273;&#7897;ng g&#7847;n &#273;&#226;y</h6>
+            <a th:href="@{/stock(warehouseId=${warehouse.id})}" class="btn btn-sm btn-outline-primary">Xem t&#7845;t c&#7843;</a>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Ng&#224;y</th>
+                            <th>S&#7843;n ph&#7849;m</th>
+                            <th>Lo&#7841;i</th>
+                            <th class="text-center">S&#7889; l&#432;&#7907;ng</th>
+                            <th>L&#253; do</th>
+                            <th>Ng&#432;&#7901;i t&#7841;o</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="mov : ${recentMovements}" th:if="${recentMovements != null}">
+                            <td th:text="${#temporals.format(mov.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2024</td>
+                            <td th:text="${mov.productName}">Product</td>
+                            <td><span th:replace="~{layout/fragments :: movementTypeBadge(${mov.type})}"></span></td>
+                            <td class="text-center fw-bold" th:text="${mov.quantity}">50</td>
+                            <td th:text="${mov.reason}">L&#253; do</td>
+                            <td th:text="${mov.createdBy}">Admin</td>
+                        </tr>
+                        <tr th:if="${recentMovements == null or #lists.isEmpty(recentMovements)}">
+                            <td colspan="6" class="text-center text-muted py-3">Ch&#432;a c&#243; ho&#7841;t &#273;&#7897;ng</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Warehouse Modal -->
+    <div class="modal fade" id="editWarehouseModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form th:action="@{/warehouses/{id}(id=${warehouse.id})}" method="post">
+                    <input type="hidden" name="_method" value="PUT"/>
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Ch&#7881;nh s&#7917;a kho</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">T&#234;n kho</label>
+                                <input type="text" class="form-control" name="name" th:value="${warehouse.name}" required="required"/>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">M&#227; kho</label>
+                                <input type="text" class="form-control" name="code" th:value="${warehouse.code}" readonly="readonly"/>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Lo&#7841;i kho</label>
+                                <select class="form-select" name="type">
+                                    <option value="MAIN" th:selected="${warehouse.type == 'MAIN'}">Kho ch&#237;nh</option>
+                                    <option value="TRANSIT" th:selected="${warehouse.type == 'TRANSIT'}">Kho trung chuy&#7875;n</option>
+                                    <option value="SUB" th:selected="${warehouse.type == 'SUB'}">Kho ph&#7909;</option>
+                                </select>
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label fw-semibold">&#272;&#7883;a ch&#7881;</label>
+                                <input type="text" class="form-control" name="address" th:value="${warehouse.address}"/>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">S&#7913;c ch&#7913;a</label>
+                                <input type="number" class="form-control" name="capacity" th:value="${warehouse.capacity}" min="1"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">H&#7911;y</button>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>C&#7853;p nh&#7853;t</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<th:block th:fragment="scripts">
+    <script>
+        // Quick search for stock table
+        document.getElementById('stockSearch').addEventListener('input', function() {
+            var filter = this.value.toLowerCase();
+            var rows = document.querySelectorAll('#warehouseStockTable tbody tr');
+            rows.forEach(function(row) {
+                var text = row.textContent.toLowerCase();
+                row.style.display = text.includes(filter) ? '' : 'none';
+            });
+        });
+    </script>
+</th:block>
+
+</body>
+</html>

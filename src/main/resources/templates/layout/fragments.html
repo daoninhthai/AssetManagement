@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+    <!-- ===================== ALERT MESSAGE FRAGMENT ===================== -->
+    <div th:fragment="alertMessage">
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${warningMessage}" class="alert alert-warning alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <span th:text="${warningMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${infoMessage}" class="alert alert-info alert-dismissible fade show" role="alert">
+            <i class="fas fa-info-circle me-2"></i>
+            <span th:text="${infoMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+
+    <!-- ===================== PAGINATION FRAGMENT ===================== -->
+    <nav th:fragment="pagination(page)" aria-label="Page navigation" th:if="${page != null and page.totalPages > 1}">
+        <ul class="pagination justify-content-center">
+            <!-- First Page -->
+            <li class="page-item" th:classappend="${page.first ? 'disabled' : ''}">
+                <a class="page-link" th:href="@{''(page=0, size=${page.size})}" aria-label="First">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+            </li>
+            <!-- Previous Page -->
+            <li class="page-item" th:classappend="${page.first ? 'disabled' : ''}">
+                <a class="page-link" th:href="@{''(page=${page.number - 1}, size=${page.size})}" aria-label="Previous">
+                    <i class="fas fa-angle-left"></i>
+                </a>
+            </li>
+            <!-- Page Numbers -->
+            <th:block th:with="start=${page.number > 2 ? page.number - 2 : 0},
+                                end=${page.number + 2 < page.totalPages ? page.number + 2 : page.totalPages - 1}">
+                <li class="page-item" th:each="i : ${#numbers.sequence(start, end)}"
+                    th:classappend="${i == page.number ? 'active' : ''}">
+                    <a class="page-link" th:href="@{''(page=${i}, size=${page.size})}" th:text="${i + 1}">1</a>
+                </li>
+            </th:block>
+            <!-- Next Page -->
+            <li class="page-item" th:classappend="${page.last ? 'disabled' : ''}">
+                <a class="page-link" th:href="@{''(page=${page.number + 1}, size=${page.size})}" aria-label="Next">
+                    <i class="fas fa-angle-right"></i>
+                </a>
+            </li>
+            <!-- Last Page -->
+            <li class="page-item" th:classappend="${page.last ? 'disabled' : ''}">
+                <a class="page-link" th:href="@{''(page=${page.totalPages - 1}, size=${page.size})}" aria-label="Last">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+            </li>
+        </ul>
+        <div class="text-center text-muted small">
+            Hi&#7875;n th&#7883; <span th:text="${page.numberOfElements}">0</span> / <span th:text="${page.totalElements}">0</span> k&#7871;t qu&#7843;
+            (Trang <span th:text="${page.number + 1}">1</span> / <span th:text="${page.totalPages}">1</span>)
+        </div>
+    </nav>
+
+    <!-- ===================== STOCK LEVEL BADGE FRAGMENT ===================== -->
+    <span th:fragment="stockLevelBadge(level)">
+        <span th:if="${level == 'LOW'}" class="badge stock-badge-low">
+            <i class="fas fa-arrow-down me-1"></i>Th&#7845;p
+        </span>
+        <span th:if="${level == 'WARNING'}" class="badge stock-badge-warning">
+            <i class="fas fa-exclamation-triangle me-1"></i>C&#7843;nh b&#225;o
+        </span>
+        <span th:if="${level == 'OK'}" class="badge stock-badge-ok">
+            <i class="fas fa-check me-1"></i>&#7892;n
+        </span>
+        <span th:if="${level == 'OVER'}" class="badge stock-badge-over">
+            <i class="fas fa-arrow-up me-1"></i>V&#432;&#7907;t m&#7913;c
+        </span>
+    </span>
+
+    <!-- ===================== ORDER STATUS BADGE FRAGMENT ===================== -->
+    <span th:fragment="orderStatusBadge(status)">
+        <span th:if="${status == 'DRAFT'}" class="badge bg-secondary">
+            <i class="fas fa-pencil me-1"></i>Nh&#225;p
+        </span>
+        <span th:if="${status == 'PENDING'}" class="badge bg-warning text-dark">
+            <i class="fas fa-clock me-1"></i>Ch&#7901; duy&#7879;t
+        </span>
+        <span th:if="${status == 'APPROVED'}" class="badge bg-primary">
+            <i class="fas fa-check me-1"></i>&#272;&#227; duy&#7879;t
+        </span>
+        <span th:if="${status == 'RECEIVED'}" class="badge bg-success">
+            <i class="fas fa-check-double me-1"></i>&#272;&#227; nh&#7853;n
+        </span>
+        <span th:if="${status == 'CANCELLED'}" class="badge bg-danger">
+            <i class="fas fa-times me-1"></i>&#272;&#227; h&#7911;y
+        </span>
+    </span>
+
+    <!-- ===================== MOVEMENT TYPE BADGE FRAGMENT ===================== -->
+    <span th:fragment="movementTypeBadge(type)">
+        <span th:if="${type == 'INBOUND'}" class="badge bg-success">
+            <i class="fas fa-arrow-down me-1"></i>Nh&#7853;p kho
+        </span>
+        <span th:if="${type == 'OUTBOUND'}" class="badge bg-danger">
+            <i class="fas fa-arrow-up me-1"></i>Xu&#7845;t kho
+        </span>
+        <span th:if="${type == 'TRANSFER'}" class="badge bg-info">
+            <i class="fas fa-exchange-alt me-1"></i>Chuy&#7875;n kho
+        </span>
+        <span th:if="${type == 'ADJUSTMENT'}" class="badge bg-warning text-dark">
+            <i class="fas fa-sliders-h me-1"></i>&#272;i&#7873;u ch&#7881;nh
+        </span>
+    </span>
+
+    <!-- ===================== EMPTY STATE FRAGMENT ===================== -->
+    <div th:fragment="emptyState(icon, message)" class="text-center py-5 text-muted">
+        <i th:class="'fas ' + ${icon} + ' fa-3x mb-3'"></i>
+        <p th:text="${message}" class="lead">Kh&#244;ng c&#243; d&#7919; li&#7879;u</p>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: html}">
+<body>
+<div th:fragment="content">
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-1">
+                <i class="fas fa-box text-primary me-2"></i>
+                <span th:text="${product.id != null ? 'Ch&#7881;nh s&#7917;a s&#7843;n ph&#7849;m' : 'Th&#234;m s&#7843;n ph&#7849;m m&#7899;i'}">Th&#234;m s&#7843;n ph&#7849;m m&#7899;i</span>
+            </h4>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a th:href="@{/}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a th:href="@{/products}">S&#7843;n ph&#7849;m</a></li>
+                    <li class="breadcrumb-item active" th:text="${product.id != null ? 'Ch&#7881;nh s&#7917;a' : 'Th&#234;m m&#7899;i'}">Th&#234;m m&#7899;i</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Alert Messages -->
+    <div th:replace="~{layout/fragments :: alertMessage}"></div>
+
+    <!-- Product Form -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form th:action="${product.id != null ? '/products/' + product.id + '/edit' : '/products/new'}"
+                  th:object="${product}" method="post" class="needs-validation" novalidate="novalidate">
+
+                <div class="row g-3">
+                    <!-- SKU -->
+                    <div class="col-md-4">
+                        <label for="sku" class="form-label fw-semibold">SKU <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="sku" th:field="*{sku}"
+                               th:readonly="${product.id != null}"
+                               placeholder="T&#7921; &#273;&#7897;ng t&#7841;o n&#7871;u &#273;&#7875; tr&#7889;ng"/>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('sku')}" th:errors="*{sku}">SKU error</div>
+                        <small class="form-text text-muted" th:if="${product.id == null}">&#272;&#7875; tr&#7889;ng &#273;&#7875; h&#7879; th&#7889;ng t&#7921; t&#7841;o</small>
+                    </div>
+
+                    <!-- Product Name -->
+                    <div class="col-md-8">
+                        <label for="name" class="form-label fw-semibold">T&#234;n s&#7843;n ph&#7849;m <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="name" th:field="*{name}"
+                               placeholder="Nh&#7853;p t&#234;n s&#7843;n ph&#7849;m" required="required"/>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}" th:errors="*{name}">Name error</div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="col-12">
+                        <label for="description" class="form-label fw-semibold">M&#244; t&#7843;</label>
+                        <textarea class="form-control" id="description" th:field="*{description}" rows="3"
+                                  placeholder="M&#244; t&#7843; chi ti&#7871;t s&#7843;n ph&#7849;m..."></textarea>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('description')}" th:errors="*{description}">Description error</div>
+                    </div>
+
+                    <!-- Category -->
+                    <div class="col-md-4">
+                        <label for="categoryId" class="form-label fw-semibold">Danh m&#7909;c <span class="text-danger">*</span></label>
+                        <select class="form-select" id="categoryId" th:field="*{categoryId}" required="required">
+                            <option value="">-- Ch&#7885;n danh m&#7909;c --</option>
+                            <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}">Category</option>
+                        </select>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('categoryId')}" th:errors="*{categoryId}">Category error</div>
+                    </div>
+
+                    <!-- Supplier -->
+                    <div class="col-md-4">
+                        <label for="supplierId" class="form-label fw-semibold">Nh&#224; cung c&#7845;p</label>
+                        <select class="form-select" id="supplierId" th:field="*{supplierId}">
+                            <option value="">-- Ch&#7885;n nh&#224; cung c&#7845;p --</option>
+                            <option th:each="sup : ${suppliers}" th:value="${sup.id}" th:text="${sup.name}">Supplier</option>
+                        </select>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('supplierId')}" th:errors="*{supplierId}">Supplier error</div>
+                    </div>
+
+                    <!-- Unit -->
+                    <div class="col-md-4">
+                        <label for="unit" class="form-label fw-semibold">&#272;&#417;n v&#7883; t&#237;nh <span class="text-danger">*</span></label>
+                        <select class="form-select" id="unit" th:field="*{unit}" required="required">
+                            <option value="">-- Ch&#7885;n --</option>
+                            <option value="C&#225;i">C&#225;i</option>
+                            <option value="Chi&#7871;c">Chi&#7871;c</option>
+                            <option value="H&#7897;p">H&#7897;p</option>
+                            <option value="Th&#249;ng">Th&#249;ng</option>
+                            <option value="Kg">Kg</option>
+                            <option value="L&#237;t">L&#237;t</option>
+                            <option value="M&#233;t">M&#233;t</option>
+                            <option value="B&#7897;">B&#7897;</option>
+                        </select>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('unit')}" th:errors="*{unit}">Unit error</div>
+                    </div>
+
+                    <hr class="my-3"/>
+
+                    <!-- Selling Price -->
+                    <div class="col-md-4">
+                        <label for="sellingPrice" class="form-label fw-semibold">Gi&#225; b&#225;n <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="sellingPrice" th:field="*{sellingPrice}"
+                                   min="0" step="1000" placeholder="0" required="required"/>
+                            <span class="input-group-text">&#8363;</span>
+                        </div>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('sellingPrice')}" th:errors="*{sellingPrice}">Price error</div>
+                    </div>
+
+                    <!-- Cost Price -->
+                    <div class="col-md-4">
+                        <label for="costPrice" class="form-label fw-semibold">Gi&#225; v&#7889;n <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="costPrice" th:field="*{costPrice}"
+                                   min="0" step="1000" placeholder="0" required="required"/>
+                            <span class="input-group-text">&#8363;</span>
+                        </div>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('costPrice')}" th:errors="*{costPrice}">Cost error</div>
+                    </div>
+
+                    <div class="col-md-4"></div>
+
+                    <!-- Min Quantity -->
+                    <div class="col-md-4">
+                        <label for="minQuantity" class="form-label fw-semibold">M&#7913;c t&#7891;n t&#7889;i thi&#7875;u</label>
+                        <input type="number" class="form-control" id="minQuantity" th:field="*{minQuantity}"
+                               min="0" placeholder="0"/>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('minQuantity')}" th:errors="*{minQuantity}">Min error</div>
+                    </div>
+
+                    <!-- Max Quantity -->
+                    <div class="col-md-4">
+                        <label for="maxQuantity" class="form-label fw-semibold">M&#7913;c t&#7891;n t&#7889;i &#273;a</label>
+                        <input type="number" class="form-control" id="maxQuantity" th:field="*{maxQuantity}"
+                               min="0" placeholder="0"/>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('maxQuantity')}" th:errors="*{maxQuantity}">Max error</div>
+                    </div>
+
+                    <!-- Reorder Point -->
+                    <div class="col-md-4">
+                        <label for="reorderPoint" class="form-label fw-semibold">&#272;i&#7875;m &#273;&#7863;t h&#224;ng l&#7841;i</label>
+                        <input type="number" class="form-control" id="reorderPoint" th:field="*{reorderPoint}"
+                               min="0" placeholder="0"/>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('reorderPoint')}" th:errors="*{reorderPoint}">Reorder error</div>
+                        <small class="form-text text-muted">H&#7879; th&#7889;ng s&#7869; c&#7843;nh b&#225;o khi t&#7891;n kho d&#432;&#7899;i m&#7913;c n&#224;y</small>
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                    <a th:href="@{/products}" class="btn btn-secondary">
+                        <i class="fas fa-times me-1"></i>H&#7911;y
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i>
+                        <span th:text="${product.id != null ? 'C&#7853;p nh&#7853;t' : 'T&#7841;o s&#7843;n ph&#7849;m'}">T&#7841;o s&#7843;n ph&#7849;m</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+<th:block th:fragment="scripts">
+    <script>
+        // Bootstrap form validation
+        (function () {
+            'use strict';
+            var forms = document.querySelectorAll('.needs-validation');
+            Array.prototype.slice.call(forms).forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        })();
+    </script>
+</th:block>
+
+</body>
+</html>

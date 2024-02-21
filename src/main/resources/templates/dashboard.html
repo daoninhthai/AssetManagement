@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: html}">
+<body>
+<div th:fragment="content">
+
+    <!-- ===================== KPI CARDS ROW ===================== -->
+    <div class="row g-3 mb-4">
+        <!-- Total Products -->
+        <div class="col-xl-2 col-md-4 col-sm-6">
+            <div class="card kpi-card border-start-primary">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <div class="text-xs text-uppercase text-muted fw-bold mb-1">T&#7893;ng s&#7843;n ph&#7849;m</div>
+                            <div class="h4 mb-0 fw-bold" th:text="${totalProducts != null ? totalProducts : '0'}">1,248</div>
+                        </div>
+                        <div class="kpi-icon text-primary">
+                            <i class="fas fa-box fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Value -->
+        <div class="col-xl-2 col-md-4 col-sm-6">
+            <div class="card kpi-card border-start-success">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <div class="text-xs text-uppercase text-muted fw-bold mb-1">Gi&#225; tr&#7883; kho</div>
+                            <div class="h4 mb-0 fw-bold" th:text="${inventoryValue != null ? #numbers.formatDecimal(inventoryValue, 0, 'COMMA', 0, 'POINT') + ' &#8363;' : '0 &#8363;'}">2.5B &#8363;</div>
+                        </div>
+                        <div class="kpi-icon text-success">
+                            <i class="fas fa-dollar-sign fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Low Stock -->
+        <div class="col-xl-2 col-md-4 col-sm-6">
+            <div class="card kpi-card border-start-danger">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <div class="text-xs text-uppercase text-muted fw-bold mb-1">S&#7855;p h&#7871;t h&#224;ng</div>
+                            <div class="h4 mb-0 fw-bold text-danger" th:text="${lowStockCount != null ? lowStockCount : '0'}">23</div>
+                        </div>
+                        <div class="kpi-icon text-danger">
+                            <i class="fas fa-exclamation-triangle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Orders -->
+        <div class="col-xl-2 col-md-4 col-sm-6">
+            <div class="card kpi-card border-start-warning">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <div class="text-xs text-uppercase text-muted fw-bold mb-1">&#272;&#417;n ch&#7901; duy&#7879;t</div>
+                            <div class="h4 mb-0 fw-bold" th:text="${pendingOrders != null ? pendingOrders : '0'}">8</div>
+                        </div>
+                        <div class="kpi-icon text-warning">
+                            <i class="fas fa-clock fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alerts -->
+        <div class="col-xl-2 col-md-4 col-sm-6">
+            <div class="card kpi-card border-start-danger">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <div class="text-xs text-uppercase text-muted fw-bold mb-1">C&#7843;nh b&#225;o</div>
+                            <div class="h4 mb-0 fw-bold text-danger" th:text="${alertCount != null ? alertCount : '0'}">5</div>
+                        </div>
+                        <div class="kpi-icon text-danger">
+                            <i class="fas fa-bell fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Warehouses -->
+        <div class="col-xl-2 col-md-4 col-sm-6">
+            <div class="card kpi-card border-start-purple">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <div class="text-xs text-uppercase text-muted fw-bold mb-1">T&#7893;ng kho</div>
+                            <div class="h4 mb-0 fw-bold" th:text="${totalWarehouses != null ? totalWarehouses : '0'}">4</div>
+                        </div>
+                        <div class="kpi-icon text-purple">
+                            <i class="fas fa-warehouse fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== CHARTS ROW ===================== -->
+    <div class="row g-3 mb-4">
+        <!-- Stock Trend Chart -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-bold">
+                        <i class="fas fa-chart-line text-primary me-2"></i>
+                        Xu h&#432;&#7899;ng nh&#7853;p/xu&#7845;t kho 30 ng&#224;y
+                    </h6>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-outline-primary active" data-period="30">30 ng&#224;y</button>
+                        <button type="button" class="btn btn-outline-primary" data-period="14">14 ng&#224;y</button>
+                        <button type="button" class="btn btn-outline-primary" data-period="7">7 ng&#224;y</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <canvas id="stockTrendChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Distribution Chart -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0 fw-bold">
+                        <i class="fas fa-chart-pie text-success me-2"></i>
+                        Ph&#226;n b&#7893; theo danh m&#7909;c
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="categoryChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== TABLES ROW ===================== -->
+    <div class="row g-3">
+        <!-- Low Stock Products -->
+        <div class="col-lg-7">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-bold">
+                        <i class="fas fa-exclamation-triangle text-danger me-2"></i>
+                        S&#7843;n ph&#7849;m s&#7855;p h&#7871;t h&#224;ng
+                    </h6>
+                    <a th:href="@{/products}" class="btn btn-sm btn-outline-primary">Xem t&#7845;t c&#7843;</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>S&#7843;n ph&#7849;m</th>
+                                    <th>Kho</th>
+                                    <th class="text-center">T&#7891;n kho</th>
+                                    <th class="text-center">T&#7889;i thi&#7875;u</th>
+                                    <th class="text-center">Tr&#7841;ng th&#225;i</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="item : ${lowStockProducts}" th:if="${lowStockProducts != null}">
+                                    <td>
+                                        <a th:href="@{/products/{id}(id=${item.productId})}" class="text-decoration-none fw-semibold"
+                                           th:text="${item.productName}">Product Name</a>
+                                    </td>
+                                    <td th:text="${item.warehouseName}">Warehouse A</td>
+                                    <td class="text-center fw-bold text-danger" th:text="${item.quantity}">5</td>
+                                    <td class="text-center" th:text="${item.minQuantity}">50</td>
+                                    <td class="text-center">
+                                        <span th:replace="~{layout/fragments :: stockLevelBadge(${item.stockLevel})}"></span>
+                                    </td>
+                                </tr>
+                                <tr th:if="${lowStockProducts == null or #lists.isEmpty(lowStockProducts)}">
+                                    <td colspan="5" class="text-center text-muted py-4">
+                                        <i class="fas fa-check-circle text-success fa-2x mb-2 d-block"></i>
+                                        T&#7845;t c&#7843; s&#7843;n ph&#7849;m &#273;&#7873;u &#273;&#7911; h&#224;ng
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activities -->
+        <div class="col-lg-5">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-bold">
+                        <i class="fas fa-history text-info me-2"></i>
+                        Ho&#7841;t &#273;&#7897;ng g&#7847;n &#273;&#226;y
+                    </h6>
+                    <a th:href="@{/stock}" class="btn btn-sm btn-outline-primary">Xem t&#7845;t c&#7843;</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        <div th:each="activity : ${recentActivities}" th:if="${recentActivities != null}"
+                             class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <div>
+                                    <span th:replace="~{layout/fragments :: movementTypeBadge(${activity.type})}"></span>
+                                    <span class="ms-2 fw-semibold" th:text="${activity.productName}">Product</span>
+                                </div>
+                                <small class="text-muted" th:text="${#temporals.format(activity.createdAt, 'dd/MM HH:mm')}">01/01 10:00</small>
+                            </div>
+                            <small class="text-muted">
+                                <span th:text="${activity.quantity}">100</span> &#273;&#417;n v&#7883;
+                                <span th:if="${activity.warehouseName}"> - <span th:text="${activity.warehouseName}">Kho A</span></span>
+                                <span th:if="${activity.createdBy}"> - b&#7903;i <span th:text="${activity.createdBy}">Admin</span></span>
+                            </small>
+                        </div>
+                        <div th:if="${recentActivities == null or #lists.isEmpty(recentActivities)}"
+                             class="list-group-item text-center text-muted py-4">
+                            <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
+                            Ch&#432;a c&#243; ho&#7841;t &#273;&#7897;ng n&#224;o
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Dashboard Charts Script -->
+<th:block th:fragment="scripts">
+    <script th:src="@{/js/dashboard-charts.js}"></script>
+</th:block>
+
+</body>
+</html>

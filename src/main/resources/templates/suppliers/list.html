@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: html}">
+<body>
+<div th:fragment="content">
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-1"><i class="fas fa-truck text-primary me-2"></i>Qu&#7843;n l&#253; nh&#224; cung c&#7845;p</h4>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a th:href="@{/}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Nh&#224; cung c&#7845;p</li>
+                </ol>
+            </nav>
+        </div>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSupplierModal">
+            <i class="fas fa-plus me-1"></i>Th&#234;m nh&#224; cung c&#7845;p
+        </button>
+    </div>
+
+    <!-- Alert Messages -->
+    <div th:replace="~{layout/fragments :: alertMessage}"></div>
+
+    <!-- Suppliers Table -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table id="suppliersTable" class="table table-striped table-hover mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>T&#234;n</th>
+                            <th>Li&#234;n h&#7879;</th>
+                            <th>Email</th>
+                            <th>S&#272;T</th>
+                            <th class="text-center">&#272;&#225;nh gi&#225;</th>
+                            <th class="text-center">Tr&#7841;ng th&#225;i</th>
+                            <th class="text-center" style="width: 120px;">Thao t&#225;c</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="supplier : ${suppliers}">
+                            <td class="fw-semibold" th:text="${supplier.name}">Supplier A</td>
+                            <td th:text="${supplier.contactPerson}">Nguy&#7877;n V&#259;n A</td>
+                            <td>
+                                <a th:href="'mailto:' + ${supplier.email}" th:text="${supplier.email}" class="text-decoration-none">email@example.com</a>
+                            </td>
+                            <td th:text="${supplier.phone}">0901234567</td>
+                            <td class="text-center">
+                                <span th:each="i : ${#numbers.sequence(1, 5)}">
+                                    <i th:class="${i <= supplier.rating ? 'fas fa-star text-warning' : 'far fa-star text-muted'}"></i>
+                                </span>
+                                <small class="text-muted ms-1" th:text="'(' + ${supplier.rating} + ')')">(4.5)</small>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge" th:classappend="${supplier.active ? 'bg-success' : 'bg-secondary'}"
+                                      th:text="${supplier.active ? 'Ho&#7841;t &#273;&#7897;ng' : 'Ng&#432;ng'}">Active</span>
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm">
+                                    <button type="button" class="btn btn-outline-primary" title="Ch&#7881;nh s&#7917;a"
+                                            data-bs-toggle="modal" data-bs-target="#editSupplierModal"
+                                            th:data-supplier-id="${supplier.id}"
+                                            th:data-supplier-name="${supplier.name}"
+                                            th:data-supplier-contact="${supplier.contactPerson}"
+                                            th:data-supplier-email="${supplier.email}"
+                                            th:data-supplier-phone="${supplier.phone}"
+                                            th:data-supplier-address="${supplier.address}"
+                                            th:data-supplier-active="${supplier.active}">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-outline-danger" title="X&#243;a"
+                                            data-bs-toggle="modal" data-bs-target="#deleteSupplierModal"
+                                            th:data-supplier-id="${supplier.id}"
+                                            th:data-supplier-name="${supplier.name}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${suppliers == null or #lists.isEmpty(suppliers)}">
+                            <td colspan="7" class="text-center text-muted py-5">
+                                <i class="fas fa-truck fa-3x mb-3 d-block"></i>
+                                Ch&#432;a c&#243; nh&#224; cung c&#7845;p n&#224;o
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Supplier Modal -->
+    <div class="modal fade" id="addSupplierModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form th:action="@{/suppliers}" method="post">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title"><i class="fas fa-plus-circle me-2"></i>Th&#234;m nh&#224; cung c&#7845;p</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">T&#234;n c&#244;ng ty <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="name" required="required" placeholder="T&#234;n nh&#224; cung c&#7845;p"/>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Ng&#432;&#7901;i li&#234;n h&#7879;</label>
+                                <input type="text" class="form-control" name="contactPerson" placeholder="H&#7885; v&#224; t&#234;n"/>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" name="email" required="required" placeholder="email@company.com"/>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">S&#7889; &#273;i&#7879;n tho&#7841;i</label>
+                                <input type="tel" class="form-control" name="phone" placeholder="0901234567"/>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">&#272;&#7883;a ch&#7881;</label>
+                                <input type="text" class="form-control" name="address" placeholder="&#272;&#7883;a ch&#7881; c&#244;ng ty"/>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">&#272;&#225;nh gi&#225; (1-5)</label>
+                                <select class="form-select" name="rating">
+                                    <option value="5">5 - Xu&#7845;t s&#7855;c</option>
+                                    <option value="4">4 - T&#7889;t</option>
+                                    <option value="3" selected="selected">3 - Trung b&#236;nh</option>
+                                    <option value="2">2 - D&#432;&#7899;i trung b&#236;nh</option>
+                                    <option value="1">1 - K&#233;m</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Tr&#7841;ng th&#225;i</label>
+                                <select class="form-select" name="active">
+                                    <option value="true">Ho&#7841;t &#273;&#7897;ng</option>
+                                    <option value="false">Ng&#432;ng ho&#7841;t &#273;&#7897;ng</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">H&#7911;y</button>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>L&#432;u</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Supplier Modal -->
+    <div class="modal fade" id="editSupplierModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form id="editSupplierForm" method="post">
+                    <div class="modal-header bg-warning text-dark">
+                        <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Ch&#7881;nh s&#7917;a nh&#224; cung c&#7845;p</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">T&#234;n c&#244;ng ty <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="name" id="editName" required="required"/>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Ng&#432;&#7901;i li&#234;n h&#7879;</label>
+                                <input type="text" class="form-control" name="contactPerson" id="editContact"/>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Email</label>
+                                <input type="email" class="form-control" name="email" id="editEmail"/>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">S&#272;T</label>
+                                <input type="tel" class="form-control" name="phone" id="editPhone"/>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">&#272;&#7883;a ch&#7881;</label>
+                                <input type="text" class="form-control" name="address" id="editAddress"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">H&#7911;y</button>
+                        <button type="submit" class="btn btn-warning"><i class="fas fa-save me-1"></i>C&#7853;p nh&#7853;t</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Supplier Modal -->
+    <div class="modal fade" id="deleteSupplierModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title"><i class="fas fa-exclamation-triangle me-2"></i>X&#225;c nh&#7853;n x&#243;a</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>B&#7841;n c&#243; ch&#7855;c mu&#7889;n x&#243;a nh&#224; cung c&#7845;p <strong id="deleteSupplierName"></strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">H&#7911;y</button>
+                    <form id="deleteSupplierForm" method="post" class="d-inline">
+                        <input type="hidden" name="_method" value="DELETE"/>
+                        <button type="submit" class="btn btn-danger"><i class="fas fa-trash me-1"></i>X&#243;a</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<th:block th:fragment="scripts">
+    <script>
+        // Edit modal handler
+        var editModal = document.getElementById('editSupplierModal');
+        if (editModal) {
+            editModal.addEventListener('show.bs.modal', function (event) {
+                var btn = event.relatedTarget;
+                document.getElementById('editSupplierForm').action = '/suppliers/' + btn.getAttribute('data-supplier-id');
+                document.getElementById('editName').value = btn.getAttribute('data-supplier-name');
+                document.getElementById('editContact').value = btn.getAttribute('data-supplier-contact') || '';
+                document.getElementById('editEmail').value = btn.getAttribute('data-supplier-email') || '';
+                document.getElementById('editPhone').value = btn.getAttribute('data-supplier-phone') || '';
+                document.getElementById('editAddress').value = btn.getAttribute('data-supplier-address') || '';
+            });
+        }
+
+        // Delete modal handler
+        var deleteModal = document.getElementById('deleteSupplierModal');
+        if (deleteModal) {
+            deleteModal.addEventListener('show.bs.modal', function (event) {
+                var btn = event.relatedTarget;
+                document.getElementById('deleteSupplierName').textContent = btn.getAttribute('data-supplier-name');
+                document.getElementById('deleteSupplierForm').action = '/suppliers/' + btn.getAttribute('data-supplier-id') + '/delete';
+            });
+        }
+    </script>
+</th:block>
+
+</body>
+</html>

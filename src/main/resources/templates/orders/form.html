@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: html}">
+<body>
+<div th:fragment="content">
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-1">
+                <i class="fas fa-shopping-cart text-primary me-2"></i>
+                <span th:text="${order.id != null ? 'Ch&#7881;nh s&#7917;a &#273;&#417;n h&#224;ng' : 'T&#7841;o &#273;&#417;n &#273;&#7863;t h&#224;ng m&#7899;i'}">T&#7841;o &#273;&#417;n m&#7899;i</span>
+            </h4>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a th:href="@{/}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a th:href="@{/orders}">&#272;&#417;n h&#224;ng</a></li>
+                    <li class="breadcrumb-item active" th:text="${order.id != null ? 'Ch&#7881;nh s&#7917;a' : 'T&#7841;o m&#7899;i'}">T&#7841;o m&#7899;i</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Alert Messages -->
+    <div th:replace="~{layout/fragments :: alertMessage}"></div>
+
+    <!-- Order Form -->
+    <form th:action="${order.id != null ? '/orders/' + order.id + '/edit' : '/orders/new'}"
+          th:object="${order}" method="post" id="orderForm">
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h6 class="mb-0 fw-bold"><i class="fas fa-info-circle text-primary me-2"></i>Th&#244;ng tin &#273;&#417;n h&#224;ng</h6>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <!-- Supplier -->
+                    <div class="col-md-6">
+                        <label for="supplierId" class="form-label fw-semibold">Nh&#224; cung c&#7845;p <span class="text-danger">*</span></label>
+                        <select class="form-select" id="supplierId" th:field="*{supplierId}" required="required">
+                            <option value="">-- Ch&#7885;n nh&#224; cung c&#7845;p --</option>
+                            <option th:each="sup : ${suppliers}" th:value="${sup.id}" th:text="${sup.name}">Supplier</option>
+                        </select>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('supplierId')}" th:errors="*{supplierId}">Error</div>
+                    </div>
+
+                    <!-- Expected Delivery Date -->
+                    <div class="col-md-3">
+                        <label for="expectedDeliveryDate" class="form-label fw-semibold">Ng&#224;y giao d&#7921; ki&#7871;n</label>
+                        <input type="date" class="form-control" id="expectedDeliveryDate" th:field="*{expectedDeliveryDate}"/>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('expectedDeliveryDate')}" th:errors="*{expectedDeliveryDate}">Error</div>
+                    </div>
+
+                    <!-- Order Number (auto if new) -->
+                    <div class="col-md-3" th:if="${order.id != null}">
+                        <label class="form-label fw-semibold">M&#227; &#273;&#417;n</label>
+                        <input type="text" class="form-control" th:value="${order.orderNumber}" readonly="readonly"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Items -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold"><i class="fas fa-list text-primary me-2"></i>Chi ti&#7871;t &#273;&#417;n h&#224;ng</h6>
+                <button type="button" class="btn btn-success btn-sm" id="addItemBtn">
+                    <i class="fas fa-plus me-1"></i>Th&#234;m d&#242;ng
+                </button>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0" id="orderItemsTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 40%;">S&#7843;n ph&#7849;m <span class="text-danger">*</span></th>
+                                <th class="text-center" style="width: 15%;">S&#7889; l&#432;&#7907;ng <span class="text-danger">*</span></th>
+                                <th class="text-end" style="width: 20%;">&#272;&#417;n gi&#225; <span class="text-danger">*</span></th>
+                                <th class="text-end" style="width: 20%;">Th&#224;nh ti&#7873;n</th>
+                                <th style="width: 5%;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="orderItemsBody">
+                            <tr th:each="item, stat : ${order.items}" class="order-item-row">
+                                <td>
+                                    <select class="form-select form-select-sm item-product" th:name="'items[' + ${stat.index} + '].productId'"
+                                            required="required">
+                                        <option value="">-- Ch&#7885;n --</option>
+                                        <option th:each="prod : ${products}" th:value="${prod.id}" th:text="${prod.sku + ' - ' + prod.name}"
+                                                th:selected="${item.productId == prod.id}">Product</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="number" class="form-control form-control-sm text-center item-quantity"
+                                           th:name="'items[' + ${stat.index} + '].quantity'" th:value="${item.quantity}"
+                                           min="1" required="required" onchange="calculateSubtotal(this)"/>
+                                </td>
+                                <td>
+                                    <input type="number" class="form-control form-control-sm text-end item-price"
+                                           th:name="'items[' + ${stat.index} + '].unitPrice'" th:value="${item.unitPrice}"
+                                           min="0" step="1000" required="required" onchange="calculateSubtotal(this)"/>
+                                </td>
+                                <td class="text-end">
+                                    <span class="fw-bold item-subtotal" th:text="${item.quantity * item.unitPrice}">0</span> &#8363;
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeItem(this)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <!-- Default empty row if no items -->
+                            <tr th:if="${order.items == null or #lists.isEmpty(order.items)}" class="order-item-row">
+                                <td>
+                                    <select class="form-select form-select-sm item-product" name="items[0].productId" required="required">
+                                        <option value="">-- Ch&#7885;n --</option>
+                                        <option th:each="prod : ${products}" th:value="${prod.id}" th:text="${prod.sku + ' - ' + prod.name}">Product</option>
+                                    </select>
+                                </td>
+                                <td><input type="number" class="form-control form-control-sm text-center item-quantity" name="items[0].quantity" min="1" value="1" required="required" onchange="calculateSubtotal(this)"/></td>
+                                <td><input type="number" class="form-control form-control-sm text-end item-price" name="items[0].unitPrice" min="0" step="1000" value="0" required="required" onchange="calculateSubtotal(this)"/></td>
+                                <td class="text-end"><span class="fw-bold item-subtotal">0</span> &#8363;</td>
+                                <td><button type="button" class="btn btn-outline-danger btn-sm" onclick="removeItem(this)"><i class="fas fa-trash"></i></button></td>
+                            </tr>
+                        </tbody>
+                        <tfoot class="table-light">
+                            <tr>
+                                <td colspan="3" class="text-end fw-bold">T&#7893;ng c&#7897;ng:</td>
+                                <td class="text-end">
+                                    <span class="h5 fw-bold text-primary" id="orderTotal">0</span> &#8363;
+                                </td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <label for="notes" class="form-label fw-semibold">Ghi ch&#250;</label>
+                <textarea class="form-control" id="notes" th:field="*{notes}" rows="3"
+                          placeholder="Ghi ch&#250; th&#234;m cho &#273;&#417;n h&#224;ng..."></textarea>
+            </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="d-flex justify-content-end gap-2">
+            <a th:href="@{/orders}" class="btn btn-secondary">
+                <i class="fas fa-times me-1"></i>H&#7911;y
+            </a>
+            <button type="submit" name="action" value="draft" class="btn btn-outline-primary">
+                <i class="fas fa-save me-1"></i>L&#432;u nh&#225;p
+            </button>
+            <button type="submit" name="action" value="submit" class="btn btn-primary">
+                <i class="fas fa-paper-plane me-1"></i>G&#7917;i duy&#7879;t
+            </button>
+        </div>
+    </form>
+
+</div>
+
+<th:block th:fragment="scripts">
+    <script>
+        var itemIndex = document.querySelectorAll('.order-item-row').length;
+
+        // Add new item row
+        document.getElementById('addItemBtn').addEventListener('click', function() {
+            var tbody = document.getElementById('orderItemsBody');
+            var firstRow = tbody.querySelector('.order-item-row');
+            var newRow = firstRow.cloneNode(true);
+
+            // Update names
+            newRow.querySelectorAll('[name]').forEach(function(el) {
+                el.name = el.name.replace(/\[\d+\]/, '[' + itemIndex + ']');
+            });
+
+            // Clear values
+            newRow.querySelector('.item-product').value = '';
+            newRow.querySelector('.item-quantity').value = 1;
+            newRow.querySelector('.item-price').value = 0;
+            newRow.querySelector('.item-subtotal').textContent = '0';
+
+            tbody.appendChild(newRow);
+            itemIndex++;
+        });
+
+        // Remove item row
+        function removeItem(btn) {
+            var rows = document.querySelectorAll('.order-item-row');
+            if (rows.length > 1) {
+                btn.closest('tr').remove();
+                calculateTotal();
+            }
+        }
+
+        // Calculate subtotal
+        function calculateSubtotal(input) {
+            var row = input.closest('tr');
+            var qty = parseFloat(row.querySelector('.item-quantity').value) || 0;
+            var price = parseFloat(row.querySelector('.item-price').value) || 0;
+            var subtotal = qty * price;
+            row.querySelector('.item-subtotal').textContent = subtotal.toLocaleString('vi-VN');
+            calculateTotal();
+        }
+
+        // Calculate total
+        function calculateTotal() {
+            var total = 0;
+            document.querySelectorAll('.order-item-row').forEach(function(row) {
+                var qty = parseFloat(row.querySelector('.item-quantity').value) || 0;
+                var price = parseFloat(row.querySelector('.item-price').value) || 0;
+                total += qty * price;
+            });
+            document.getElementById('orderTotal').textContent = total.toLocaleString('vi-VN');
+        }
+
+        // Initial calculation
+        calculateTotal();
+    </script>
+</th:block>
+
+</body>
+</html>

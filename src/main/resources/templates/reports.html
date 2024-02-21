@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: html}">
+<body>
+<div th:fragment="content">
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-1"><i class="fas fa-chart-bar text-primary me-2"></i>B&#225;o c&#225;o</h4>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a th:href="@{/}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">B&#225;o c&#225;o</li>
+                </ol>
+            </nav>
+        </div>
+        <button class="btn btn-outline-success" id="exportBtn">
+            <i class="fas fa-file-excel me-1"></i>Xu&#7845;t Excel
+        </button>
+    </div>
+
+    <!-- Report Tabs -->
+    <ul class="nav nav-tabs mb-4" id="reportTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="inventory-tab" data-bs-toggle="tab" data-bs-target="#inventory"
+                    type="button" role="tab">
+                <i class="fas fa-boxes-stacked me-1"></i>T&#7891;n kho
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="movements-tab" data-bs-toggle="tab" data-bs-target="#movements"
+                    type="button" role="tab">
+                <i class="fas fa-exchange-alt me-1"></i>Nh&#7853;p/Xu&#7845;t
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="suppliers-tab" data-bs-toggle="tab" data-bs-target="#suppliersReport"
+                    type="button" role="tab">
+                <i class="fas fa-truck me-1"></i>Nh&#224; cung c&#7845;p
+            </button>
+        </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content" id="reportTabsContent">
+
+        <!-- ===== INVENTORY REPORT TAB ===== -->
+        <div class="tab-pane fade show active" id="inventory" role="tabpanel">
+            <!-- Filters -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <form class="row g-3 align-items-end">
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Kho h&#224;ng</label>
+                            <select class="form-select" name="warehouseId">
+                                <option value="">T&#7845;t c&#7843;</option>
+                                <option th:each="wh : ${warehouses}" th:value="${wh.id}" th:text="${wh.name}">Kho A</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Danh m&#7909;c</label>
+                            <select class="form-select" name="categoryId">
+                                <option value="">T&#7845;t c&#7843;</option>
+                                <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}">Category</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Tr&#7841;ng th&#225;i</label>
+                            <select class="form-select" name="stockLevel">
+                                <option value="">T&#7845;t c&#7843;</option>
+                                <option value="LOW">Th&#7845;p</option>
+                                <option value="OK">&#7892;n &#273;&#7883;nh</option>
+                                <option value="OVER">V&#432;&#7907;t m&#7913;c</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <button type="button" class="btn btn-primary w-100">
+                                <i class="fas fa-search me-1"></i>T&#7841;o b&#225;o c&#225;o
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Inventory Chart -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <canvas id="inventoryChart" height="250"></canvas>
+                </div>
+            </div>
+
+            <!-- Inventory Table -->
+            <div class="card shadow-sm">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover mb-0">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>SKU</th>
+                                    <th>S&#7843;n ph&#7849;m</th>
+                                    <th>Danh m&#7909;c</th>
+                                    <th>Kho</th>
+                                    <th class="text-center">T&#7891;n kho</th>
+                                    <th class="text-end">Gi&#225; tr&#7883;</th>
+                                    <th class="text-center">Tr&#7841;ng th&#225;i</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="item : ${inventoryReport}" th:if="${inventoryReport != null}">
+                                    <td><code th:text="${item.sku}">SKU001</code></td>
+                                    <td th:text="${item.productName}">Product</td>
+                                    <td th:text="${item.categoryName}">Category</td>
+                                    <td th:text="${item.warehouseName}">Kho A</td>
+                                    <td class="text-center fw-bold" th:text="${item.quantity}">100</td>
+                                    <td class="text-end" th:text="${#numbers.formatDecimal(item.value, 0, 'COMMA', 0, 'POINT') + ' &#8363;'}">1,000,000 &#8363;</td>
+                                    <td class="text-center"><span th:replace="~{layout/fragments :: stockLevelBadge(${item.stockLevel})}"></span></td>
+                                </tr>
+                                <tr th:if="${inventoryReport == null or #lists.isEmpty(inventoryReport)}">
+                                    <td colspan="7" class="text-center text-muted py-4">Nh&#7845;n "T&#7841;o b&#225;o c&#225;o" &#273;&#7875; xem d&#7919; li&#7879;u</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== MOVEMENTS REPORT TAB ===== -->
+        <div class="tab-pane fade" id="movements" role="tabpanel">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <form class="row g-3 align-items-end">
+                        <div class="col-md-2">
+                            <label class="form-label fw-semibold">T&#7915; ng&#224;y</label>
+                            <input type="date" class="form-control" name="fromDate"/>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-semibold">&#272;&#7871;n ng&#224;y</label>
+                            <input type="date" class="form-control" name="toDate"/>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Kho h&#224;ng</label>
+                            <select class="form-select" name="warehouseId">
+                                <option value="">T&#7845;t c&#7843;</option>
+                                <option th:each="wh : ${warehouses}" th:value="${wh.id}" th:text="${wh.name}">Kho</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-semibold">Lo&#7841;i</label>
+                            <select class="form-select" name="type">
+                                <option value="">T&#7845;t c&#7843;</option>
+                                <option value="INBOUND">Nh&#7853;p</option>
+                                <option value="OUTBOUND">Xu&#7845;t</option>
+                                <option value="TRANSFER">Chuy&#7875;n</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <button type="button" class="btn btn-primary w-100">
+                                <i class="fas fa-search me-1"></i>T&#7841;o b&#225;o c&#225;o
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Movement Chart -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <canvas id="movementReportChart" height="250"></canvas>
+                </div>
+            </div>
+
+            <!-- Movement Report Table -->
+            <div class="card shadow-sm">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover mb-0">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Ng&#224;y</th>
+                                    <th>Lo&#7841;i</th>
+                                    <th>S&#7843;n ph&#7849;m</th>
+                                    <th>Kho</th>
+                                    <th class="text-center">S&#7889; l&#432;&#7907;ng</th>
+                                    <th class="text-end">Gi&#225; tr&#7883;</th>
+                                    <th>Ng&#432;&#7901;i t&#7841;o</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="item : ${movementReport}" th:if="${movementReport != null}">
+                                    <td th:text="${#temporals.format(item.date, 'dd/MM/yyyy')}">01/01/2024</td>
+                                    <td><span th:replace="~{layout/fragments :: movementTypeBadge(${item.type})}"></span></td>
+                                    <td th:text="${item.productName}">Product</td>
+                                    <td th:text="${item.warehouseName}">Kho A</td>
+                                    <td class="text-center fw-bold" th:text="${item.quantity}">100</td>
+                                    <td class="text-end" th:text="${#numbers.formatDecimal(item.value, 0, 'COMMA', 0, 'POINT') + ' &#8363;'}">1,000,000 &#8363;</td>
+                                    <td th:text="${item.createdBy}">Admin</td>
+                                </tr>
+                                <tr th:if="${movementReport == null or #lists.isEmpty(movementReport)}">
+                                    <td colspan="7" class="text-center text-muted py-4">Nh&#7845;n "T&#7841;o b&#225;o c&#225;o" &#273;&#7875; xem d&#7919; li&#7879;u</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== SUPPLIERS REPORT TAB ===== -->
+        <div class="tab-pane fade" id="suppliersReport" role="tabpanel">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <form class="row g-3 align-items-end">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Nh&#224; cung c&#7845;p</label>
+                            <select class="form-select" name="supplierId">
+                                <option value="">T&#7845;t c&#7843;</option>
+                                <option th:each="sup : ${suppliers}" th:value="${sup.id}" th:text="${sup.name}">Supplier</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-semibold">T&#7915; ng&#224;y</label>
+                            <input type="date" class="form-control" name="fromDate"/>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-semibold">&#272;&#7871;n ng&#224;y</label>
+                            <input type="date" class="form-control" name="toDate"/>
+                        </div>
+                        <div class="col-md-4">
+                            <button type="button" class="btn btn-primary w-100">
+                                <i class="fas fa-search me-1"></i>T&#7841;o b&#225;o c&#225;o
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover mb-0">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Nh&#224; cung c&#7845;p</th>
+                                    <th class="text-center">S&#7889; &#273;&#417;n</th>
+                                    <th class="text-end">T&#7893;ng gi&#225; tr&#7883;</th>
+                                    <th class="text-center">Giao &#273;&#250;ng h&#7841;n</th>
+                                    <th class="text-center">&#272;&#225;nh gi&#225;</th>
+                                    <th class="text-center">Tr&#7841;ng th&#225;i</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="item : ${supplierReport}" th:if="${supplierReport != null}">
+                                    <td class="fw-semibold" th:text="${item.supplierName}">Supplier A</td>
+                                    <td class="text-center" th:text="${item.orderCount}">15</td>
+                                    <td class="text-end" th:text="${#numbers.formatDecimal(item.totalValue, 0, 'COMMA', 0, 'POINT') + ' &#8363;'}">50,000,000 &#8363;</td>
+                                    <td class="text-center" th:text="${item.onTimeRate + '%'}">95%</td>
+                                    <td class="text-center">
+                                        <span th:each="i : ${#numbers.sequence(1, 5)}">
+                                            <i th:class="${i <= item.rating ? 'fas fa-star text-warning' : 'far fa-star text-muted'}" style="font-size: 0.8em;"></i>
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge" th:classappend="${item.active ? 'bg-success' : 'bg-secondary'}"
+                                              th:text="${item.active ? 'Ho&#7841;t &#273;&#7897;ng' : 'Ng&#432;ng'}">Active</span>
+                                    </td>
+                                </tr>
+                                <tr th:if="${supplierReport == null or #lists.isEmpty(supplierReport)}">
+                                    <td colspan="6" class="text-center text-muted py-4">Nh&#7845;n "T&#7841;o b&#225;o c&#225;o" &#273;&#7875; xem d&#7919; li&#7879;u</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<th:block th:fragment="scripts">
+    <script>
+        // Inventory bar chart (demo)
+        var invCtx = document.getElementById('inventoryChart');
+        if (invCtx) {
+            new Chart(invCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['\u0110i\u1EC7n t\u1EED', 'Th\u1EF1c ph\u1EA9m', 'May m\u1EB7c', 'N\u1ED9i th\u1EA5t', 'V\u0103n ph\u00F2ng', 'Kh\u00E1c'],
+                    datasets: [{
+                        label: 'S\u1ED1 l\u01B0\u1EE3ng t\u1ED3n kho',
+                        data: [450, 320, 280, 180, 150, 90],
+                        backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796']
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { display: false } } }
+            });
+        }
+
+        // Movement chart (demo)
+        var movCtx = document.getElementById('movementReportChart');
+        if (movCtx) {
+            new Chart(movCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'],
+                    datasets: [
+                        { label: 'Nh\u1EADp kho', data: [120, 150, 180, 140, 160, 200, 190, 210, 180, 170, 195, 220], backgroundColor: '#1cc88a' },
+                        { label: 'Xu\u1EA5t kho', data: [100, 130, 150, 120, 145, 175, 170, 190, 160, 155, 180, 200], backgroundColor: '#e74a3b' }
+                    ]
+                },
+                options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+            });
+        }
+
+        // Export button placeholder
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            alert('Ch\u1EE9c n\u0103ng xu\u1EA5t Excel s\u1EBD \u0111\u01B0\u1EE3c tri\u1EC3n khai trong phi\u00EAn b\u1EA3n ti\u1EBFp theo.');
+        });
+    </script>
+</th:block>
+
+</body>
+</html>
