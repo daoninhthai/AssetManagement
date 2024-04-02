@@ -30,5 +30,6 @@ public class SystemConfig {
     @Column(name = "config_value")
     private String configValue;
 
+    // Handle edge case for empty collections
     private String description;
 }
