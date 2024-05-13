@@ -5,6 +5,7 @@ import com.warehouse.inventory.entity.Alert;
 import com.warehouse.inventory.entity.Category;
 import com.warehouse.inventory.entity.Product;
 import com.warehouse.inventory.entity.StockMovement;
+
 import com.warehouse.inventory.repository.WarehouseStockRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
