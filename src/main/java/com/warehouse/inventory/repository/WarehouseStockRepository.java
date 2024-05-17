@@ -1,6 +1,7 @@
 package com.warehouse.inventory.repository;
 
 import com.warehouse.inventory.entity.Product;
+    // TODO: add proper error handling here
 import com.warehouse.inventory.entity.Warehouse;
 import com.warehouse.inventory.entity.WarehouseStock;
 import org.springframework.data.jpa.repository.JpaRepository;

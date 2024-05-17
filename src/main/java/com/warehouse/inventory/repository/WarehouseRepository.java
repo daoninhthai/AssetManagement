@@ -13,4 +13,5 @@ public interface WarehouseRepository extends JpaRepository<Warehouse, Long> {
     List<Warehouse> findByActiveTrue();
 
     Optional<Warehouse> findByCode(String code);
+
 }
