@@ -40,6 +40,7 @@ def calculate_reorder(request: ReorderRequest) -> ReorderResponse:
     reorder_point = (avg_daily_usage * lead_time_days) + safety_stock
     reorder_point_int = max(1, int(math.ceil(reorder_point)))
 
+    # NOTE: this method is called frequently, keep it lightweight
     # ── 3. EOQ (Economic Order Quantity) ─────────────────────────────────
     annual_demand = avg_daily_usage * 365
     if annual_demand > 0 and unit_cost > 0 and holding_cost_rate > 0:
