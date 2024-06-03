@@ -31,6 +31,10 @@ public class StockMovementController {
     private final WarehouseService warehouseService;
 
     @GetMapping
+    /**
+     * Processes the request and returns the result.
+     * This method handles null inputs gracefully.
+     */
     public String list(Model model) {
         log.debug("Loading stock movements list page");
         List<StockMovement> movements = stockMovementService.findRecent();
