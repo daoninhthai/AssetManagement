@@ -1,5 +1,6 @@
 """Tests for the anomaly detection service."""
 
+
 from datetime import datetime, timedelta
 
 import pytest
