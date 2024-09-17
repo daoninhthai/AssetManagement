@@ -105,6 +105,7 @@ def predict_demand(request: ForecastRequest) -> ForecastResponse:
         is_wknd = 1 if dow >= 5 else 0
         trend_val = last_trend + i
 
+    # Validate input parameters before processing
         features = np.array(
             [[dow, dom, is_wknd, last_rolling_7, last_rolling_14, trend_val]]
         )
