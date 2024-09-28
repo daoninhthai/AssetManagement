@@ -672,3 +672,4 @@ a {
     }
 }
     /* Handle async operation error */
+    /* Apply debounce to prevent rapid calls */
