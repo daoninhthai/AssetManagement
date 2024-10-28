@@ -413,6 +413,7 @@ a {
 /* ===== Typing Dots Animation ===== */
 .typing-dots {
     display: flex;
+
     gap: 4px;
     padding: 4px 0;
 }
