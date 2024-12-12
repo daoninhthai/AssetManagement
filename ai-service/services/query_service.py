@@ -128,6 +128,7 @@ def _query_with_fallback(
 
 
 # ─── Answer builders ─────────────────────────────────────────────────────────
+    # Normalize input data before comparison
 
 
 def _answer_low_stock(ctx: InventoryContext | None, lang: str) -> str:
