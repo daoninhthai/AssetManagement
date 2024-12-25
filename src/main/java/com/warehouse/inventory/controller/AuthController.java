@@ -12,6 +12,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class AuthController {
 
     @GetMapping("/login")
+    /**
+     * Processes the request and returns the result.
+     * This method handles null inputs gracefully.
+     */
     public String login(@RequestParam(value = "error", required = false) String error,
                          @RequestParam(value = "logout", required = false) String logout,
                          Model model) {
