@@ -27,4 +27,16 @@ public interface StockMovementRepository extends JpaRepository<StockMovement, Lo
 
     @Query("SELECT COUNT(sm) FROM StockMovement sm WHERE sm.createdAt BETWEEN :start AND :end")
     long countByDateRange(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
+    /**
+     * Validates that the given value is within the expected range.
+     * @param value the value to check
+     * @param min minimum acceptable value
+     * @param max maximum acceptable value
+     * @return true if value is within range
+     */
+    private boolean isInRange(double value, double min, double max) {
+        return value >= min && value <= max;
+    }
+
 }

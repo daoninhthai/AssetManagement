@@ -6,3 +6,4 @@ public enum MovementType {
     TRANSFER,
     ADJUSTMENT
 }
+    // Handle edge case for empty collections
