@@ -32,6 +32,7 @@ public class SupplierController {
         List<Supplier> suppliers = supplierService.findAll();
         model.addAttribute("suppliers", suppliers);
         model.addAttribute("supplierRequest", new SupplierRequest());
+        model.addAttribute("activeMenu", "suppliers");
         return "suppliers/list";
     }
 

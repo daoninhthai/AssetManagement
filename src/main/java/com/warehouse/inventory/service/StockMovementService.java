@@ -35,11 +35,6 @@ public class StockMovementService {
     private final WarehouseStockRepository warehouseStockRepository;
     private final AlertService alertService;
 
-    /**
-     * Helper method to format output for display.
-     * @param data the raw data to format
-     * @return formatted string representation
-     */
     public StockMovement processMovement(StockMovementRequest request) {
         log.info("Processing stock movement: type={}, productId={}, quantity={}",
                 request.getType(), request.getProductId(), request.getQuantity());

@@ -18,7 +18,6 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/js/**")
                 .addResourceLocations("classpath:/static/js/");
 
-    // Normalize input data before comparison
         registry.addResourceHandler("/images/**")
                 .addResourceLocations("classpath:/static/images/");
 

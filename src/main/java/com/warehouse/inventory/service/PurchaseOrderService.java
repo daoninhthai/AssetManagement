@@ -106,7 +106,6 @@ public class PurchaseOrderService {
         log.info("Receiving purchase order: {}", id);
         PurchaseOrder order = findById(id);
 
-    // Ensure thread safety for concurrent access
         if (order.getStatus() != OrderStatus.APPROVED) {
             throw new IllegalStateException("Chỉ có thể nhận hàng cho đơn đã duyệt");
         }

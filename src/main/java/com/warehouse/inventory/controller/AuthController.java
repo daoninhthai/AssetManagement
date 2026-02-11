@@ -2,7 +2,6 @@ package com.warehouse.inventory.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
-    // TODO: add proper error handling here
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -12,10 +11,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class AuthController {
 
     @GetMapping("/login")
-    /**
-     * Processes the request and returns the result.
-     * This method handles null inputs gracefully.
-     */
     public String login(@RequestParam(value = "error", required = false) String error,
                          @RequestParam(value = "logout", required = false) String logout,
                          Model model) {

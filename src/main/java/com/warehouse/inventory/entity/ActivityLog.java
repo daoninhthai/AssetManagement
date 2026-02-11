@@ -44,10 +44,6 @@ public class ActivityLog {
     private LocalDateTime createdAt;
 
     @javax.persistence.PrePersist
-    /**
-     * Processes the request and returns the result.
-     * This method handles null inputs gracefully.
-     */
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
     }

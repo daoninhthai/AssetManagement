@@ -50,6 +50,7 @@ public class ProductController {
         }
 
         model.addAttribute("products", products);
+        model.addAttribute("activeMenu", "products");
         return "products/list";
     }
 
@@ -60,6 +61,7 @@ public class ProductController {
         model.addAttribute("categories", categoryService.findAll());
         model.addAttribute("suppliers", supplierService.findActive());
         model.addAttribute("isEdit", false);
+        model.addAttribute("activeMenu", "products");
         return "products/form";
     }
 
@@ -74,6 +76,7 @@ public class ProductController {
             model.addAttribute("categories", categoryService.findAll());
             model.addAttribute("suppliers", supplierService.findActive());
             model.addAttribute("isEdit", false);
+            model.addAttribute("activeMenu", "products");
             return "products/form";
         }
 
@@ -89,6 +92,7 @@ public class ProductController {
         ProductResponse response = productService.toResponse(product);
         model.addAttribute("product", response);
         model.addAttribute("movements", stockMovementService.findByProduct(id));
+        model.addAttribute("activeMenu", "products");
         return "products/detail";
     }
 
@@ -117,6 +121,7 @@ public class ProductController {
         model.addAttribute("categories", categoryService.findAll());
         model.addAttribute("suppliers", supplierService.findActive());
         model.addAttribute("isEdit", true);
+        model.addAttribute("activeMenu", "products");
         return "products/form";
     }
 
@@ -133,6 +138,7 @@ public class ProductController {
             model.addAttribute("categories", categoryService.findAll());
             model.addAttribute("suppliers", supplierService.findActive());
             model.addAttribute("isEdit", true);
+            model.addAttribute("activeMenu", "products");
             return "products/form";
         }
 

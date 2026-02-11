@@ -1,6 +1,5 @@
 package com.warehouse.inventory.controller;
 
-
 import com.warehouse.inventory.dto.response.StockSummaryResponse;
 import com.warehouse.inventory.service.ReportService;
 import com.warehouse.inventory.service.WarehouseService;

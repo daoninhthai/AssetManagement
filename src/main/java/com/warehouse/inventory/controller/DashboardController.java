@@ -16,14 +16,22 @@ public class DashboardController {
     private final DashboardService dashboardService;
 
     @GetMapping("/")
-    /**
-     * Initializes the component with default configuration.
-     * Should be called before any other operations.
-     */
     public String dashboard(Model model) {
         log.debug("Loading dashboard page");
-        DashboardResponse dashboardData = dashboardService.getDashboardData();
-        model.addAttribute("dashboard", dashboardData);
+        DashboardResponse data = dashboardService.getDashboardData();
+
+        model.addAttribute("activeMenu", "dashboard");
+        model.addAttribute("totalProducts", data.getTotalProducts());
+        model.addAttribute("inventoryValue", data.getTotalStockValue());
+        model.addAttribute("lowStockCount", data.getLowStockCount());
+        model.addAttribute("pendingOrders", data.getPendingOrders());
+        model.addAttribute("alertCount", data.getUnresolvedAlerts());
+        model.addAttribute("totalWarehouses", data.getTotalWarehouses());
+        model.addAttribute("lowStockProducts", data.getRecentAlerts());
+        model.addAttribute("recentActivities", data.getRecentMovements());
+        model.addAttribute("categoryBreakdown", data.getCategoryBreakdown());
+        model.addAttribute("topProducts", data.getTopProducts());
+
         return "dashboard";
     }
 }

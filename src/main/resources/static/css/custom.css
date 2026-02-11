@@ -413,7 +413,6 @@ a {
 /* ===== Typing Dots Animation ===== */
 .typing-dots {
     display: flex;
-
     gap: 4px;
     padding: 4px 0;
 }
@@ -672,5 +671,3 @@ a {
         margin-left: 0 !important;
     }
 }
-    /* Handle async operation error */
-    /* Apply debounce to prevent rapid calls */

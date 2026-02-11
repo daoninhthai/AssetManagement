@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
@@ -30,20 +29,16 @@ public class AlertController {
         List<Alert> alerts = alertService.findUnresolved();
         model.addAttribute("alerts", alerts);
         model.addAttribute("unresolvedCount", alertService.countUnresolved());
-        return "alerts/list";
+        model.addAttribute("activeMenu", "alerts");
+        return "alerts";
     }
 
     @PostMapping("/{id}/resolve")
     public String resolve(@PathVariable Long id,
-                           @RequestParam(value = "resolvedBy", required = false) String resolvedBy,
                            Principal principal,
                            RedirectAttributes redirectAttributes) {
         log.debug("Resolving alert: {}", id);
-
-        String resolver = resolvedBy;
-        if (resolver == null || resolver.isEmpty()) {
-            resolver = principal != null ? principal.getName() : "system";
-        }
+        String resolver = principal != null ? principal.getName() : "system";
 
         alertService.resolve(id, resolver);
         redirectAttributes.addFlashAttribute("successMessage", "Đã xử lý cảnh báo thành công!");

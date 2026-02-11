@@ -31,14 +31,11 @@ public class StockMovementController {
     private final WarehouseService warehouseService;
 
     @GetMapping
-    /**
-     * Processes the request and returns the result.
-     * This method handles null inputs gracefully.
-     */
     public String list(Model model) {
         log.debug("Loading stock movements list page");
         List<StockMovement> movements = stockMovementService.findRecent();
         model.addAttribute("movements", movements);
+        model.addAttribute("activeMenu", "stock");
         return "stock/list";
     }
 
@@ -49,6 +46,7 @@ public class StockMovementController {
         model.addAttribute("products", productService.findAll());
         model.addAttribute("warehouses", warehouseService.findActive());
         model.addAttribute("movementTypes", MovementType.values());
+        model.addAttribute("activeMenu", "stock");
         return "stock/form";
     }
 
@@ -63,6 +61,7 @@ public class StockMovementController {
             model.addAttribute("products", productService.findAll());
             model.addAttribute("warehouses", warehouseService.findActive());
             model.addAttribute("movementTypes", MovementType.values());
+            model.addAttribute("activeMenu", "stock");
             return "stock/form";
         }
 

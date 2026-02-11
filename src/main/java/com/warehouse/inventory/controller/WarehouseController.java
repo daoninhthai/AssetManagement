@@ -26,6 +26,7 @@ public class WarehouseController {
         log.debug("Loading warehouses list page");
         List<Warehouse> warehouses = warehouseService.findAll();
         model.addAttribute("warehouses", warehouses);
+        model.addAttribute("activeMenu", "warehouses");
         return "warehouses/list";
     }
 
@@ -50,6 +51,7 @@ public class WarehouseController {
         model.addAttribute("lowStockCount", lowStockCount);
         model.addAttribute("normalStockCount", normalStockCount);
         model.addAttribute("overStockCount", overStockCount);
+        model.addAttribute("activeMenu", "warehouses");
         return "warehouses/detail";
     }
 }

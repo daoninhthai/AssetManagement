@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-    // TODO: optimize this section for better performance
 @Slf4j
 @Service
 @Transactional

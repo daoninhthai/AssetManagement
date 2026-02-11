@@ -8,13 +8,13 @@
         <div>
             <h4 class="mb-1">
                 <i class="fas fa-box text-primary me-2"></i>
-                <span th:text="${product.id != null ? 'Ch&#7881;nh s&#7917;a s&#7843;n ph&#7849;m' : 'Th&#234;m s&#7843;n ph&#7849;m m&#7899;i'}">Th&#234;m s&#7843;n ph&#7849;m m&#7899;i</span>
+                <span th:text="${isEdit ? 'Ch&#7881;nh s&#7917;a s&#7843;n ph&#7849;m' : 'Th&#234;m s&#7843;n ph&#7849;m m&#7899;i'}">Th&#234;m s&#7843;n ph&#7849;m m&#7899;i</span>
             </h4>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-0">
                     <li class="breadcrumb-item"><a th:href="@{/}">Dashboard</a></li>
                     <li class="breadcrumb-item"><a th:href="@{/products}">S&#7843;n ph&#7849;m</a></li>
-                    <li class="breadcrumb-item active" th:text="${product.id != null ? 'Ch&#7881;nh s&#7917;a' : 'Th&#234;m m&#7899;i'}">Th&#234;m m&#7899;i</li>
+                    <li class="breadcrumb-item active" th:text="${isEdit ? 'Ch&#7881;nh s&#7917;a' : 'Th&#234;m m&#7899;i'}">Th&#234;m m&#7899;i</li>
                 </ol>
             </nav>
         </div>
@@ -26,18 +26,18 @@
     <!-- Product Form -->
     <div class="card shadow-sm">
         <div class="card-body">
-            <form th:action="${product.id != null ? '/products/' + product.id + '/edit' : '/products/new'}"
-                  th:object="${product}" method="post" class="needs-validation" novalidate="novalidate">
+            <form th:action="${isEdit ? '/products/' + productId : '/products'}"
+                  th:object="${productRequest}" method="post" class="needs-validation" novalidate="novalidate">
 
                 <div class="row g-3">
                     <!-- SKU -->
                     <div class="col-md-4">
                         <label for="sku" class="form-label fw-semibold">SKU <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="sku" th:field="*{sku}"
-                               th:readonly="${product.id != null}"
+                               th:readonly="${isEdit}"
                                placeholder="T&#7921; &#273;&#7897;ng t&#7841;o n&#7871;u &#273;&#7875; tr&#7889;ng"/>
                         <div class="invalid-feedback" th:if="${#fields.hasErrors('sku')}" th:errors="*{sku}">SKU error</div>
-                        <small class="form-text text-muted" th:if="${product.id == null}">&#272;&#7875; tr&#7889;ng &#273;&#7875; h&#7879; th&#7889;ng t&#7921; t&#7841;o</small>
+                        <small class="form-text text-muted" th:if="${!isEdit}">&#272;&#7875; tr&#7889;ng &#273;&#7875; h&#7879; th&#7889;ng t&#7921; t&#7841;o</small>
                     </div>
 
                     <!-- Product Name -->
@@ -95,15 +95,15 @@
 
                     <hr class="my-3"/>
 
-                    <!-- Selling Price -->
+                    <!-- Unit Price (was sellingPrice) -->
                     <div class="col-md-4">
-                        <label for="sellingPrice" class="form-label fw-semibold">Gi&#225; b&#225;n <span class="text-danger">*</span></label>
+                        <label for="unitPrice" class="form-label fw-semibold">Gi&#225; b&#225;n <span class="text-danger">*</span></label>
                         <div class="input-group">
-                            <input type="number" class="form-control" id="sellingPrice" th:field="*{sellingPrice}"
+                            <input type="number" class="form-control" id="unitPrice" th:field="*{unitPrice}"
                                    min="0" step="1000" placeholder="0" required="required"/>
                             <span class="input-group-text">&#8363;</span>
                         </div>
-                        <div class="invalid-feedback" th:if="${#fields.hasErrors('sellingPrice')}" th:errors="*{sellingPrice}">Price error</div>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('unitPrice')}" th:errors="*{unitPrice}">Price error</div>
                     </div>
 
                     <!-- Cost Price -->
@@ -119,20 +119,20 @@
 
                     <div class="col-md-4"></div>
 
-                    <!-- Min Quantity -->
+                    <!-- Min Stock Level (was minQuantity) -->
                     <div class="col-md-4">
-                        <label for="minQuantity" class="form-label fw-semibold">M&#7913;c t&#7891;n t&#7889;i thi&#7875;u</label>
-                        <input type="number" class="form-control" id="minQuantity" th:field="*{minQuantity}"
+                        <label for="minStockLevel" class="form-label fw-semibold">M&#7913;c t&#7891;n t&#7889;i thi&#7875;u</label>
+                        <input type="number" class="form-control" id="minStockLevel" th:field="*{minStockLevel}"
                                min="0" placeholder="0"/>
-                        <div class="invalid-feedback" th:if="${#fields.hasErrors('minQuantity')}" th:errors="*{minQuantity}">Min error</div>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('minStockLevel')}" th:errors="*{minStockLevel}">Min error</div>
                     </div>
 
-                    <!-- Max Quantity -->
+                    <!-- Max Stock Level (was maxQuantity) -->
                     <div class="col-md-4">
-                        <label for="maxQuantity" class="form-label fw-semibold">M&#7913;c t&#7891;n t&#7889;i &#273;a</label>
-                        <input type="number" class="form-control" id="maxQuantity" th:field="*{maxQuantity}"
+                        <label for="maxStockLevel" class="form-label fw-semibold">M&#7913;c t&#7891;n t&#7889;i &#273;a</label>
+                        <input type="number" class="form-control" id="maxStockLevel" th:field="*{maxStockLevel}"
                                min="0" placeholder="0"/>
-                        <div class="invalid-feedback" th:if="${#fields.hasErrors('maxQuantity')}" th:errors="*{maxQuantity}">Max error</div>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('maxStockLevel')}" th:errors="*{maxStockLevel}">Max error</div>
                     </div>
 
                     <!-- Reorder Point -->
@@ -152,7 +152,7 @@
                     </a>
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-save me-1"></i>
-                        <span th:text="${product.id != null ? 'C&#7853;p nh&#7853;t' : 'T&#7841;o s&#7843;n ph&#7849;m'}">T&#7841;o s&#7843;n ph&#7849;m</span>
+                        <span th:text="${isEdit ? 'C&#7853;p nh&#7853;t' : 'T&#7841;o s&#7843;n ph&#7849;m'}">T&#7841;o s&#7843;n ph&#7849;m</span>
                     </button>
                 </div>
             </form>
@@ -182,5 +182,3 @@
 
 </body>
 </html>
-    <!-- Cache result for subsequent calls -->
-    <!-- Handle async operation error -->

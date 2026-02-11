@@ -22,28 +22,19 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "OR LOWER(p.sku) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<Product> search(@Param("keyword") String keyword);
 
-    @Query("SELECT p FROM Product p JOIN WarehouseStock ws ON ws.product = p " +
-            "GROUP BY p HAVING SUM(ws.quantity) <= p.minStockLevel")
+    @Query(value = "SELECT p.* FROM products p " +
+            "INNER JOIN warehouse_stock ws ON ws.product_id = p.id " +
+            "WHERE p.active = true AND p.min_stock_level IS NOT NULL " +
+            "GROUP BY p.id " +
+            "HAVING SUM(ws.quantity) <= p.min_stock_level", nativeQuery = true)
     List<Product> findLowStockProducts();
 
-    @Query("SELECT p FROM Product p JOIN WarehouseStock ws ON ws.product = p " +
-            "GROUP BY p HAVING SUM(ws.quantity) >= p.maxStockLevel")
+    @Query(value = "SELECT p.* FROM products p " +
+            "INNER JOIN warehouse_stock ws ON ws.product_id = p.id " +
+            "WHERE p.active = true AND p.max_stock_level IS NOT NULL " +
+            "GROUP BY p.id " +
+            "HAVING SUM(ws.quantity) >= p.max_stock_level", nativeQuery = true)
     List<Product> findOverStockProducts();
 
     long countByActiveTrue();
-
-    /**
-     * Safely parses an integer from a string value.
-     * @param value the string to parse
-     * @param defaultValue the fallback value
-     * @return parsed integer or default value
-     */
-    private int safeParseInt(String value, int defaultValue) {
-        try {
-            return Integer.parseInt(value);
-        } catch (NumberFormatException e) {
-            return defaultValue;
-        }
-    }
-
 }

@@ -38,6 +38,7 @@ public class PurchaseOrderController {
         log.debug("Loading purchase orders list page");
         List<PurchaseOrder> orders = purchaseOrderService.findAll();
         model.addAttribute("orders", orders);
+        model.addAttribute("activeMenu", "orders");
         return "orders/list";
     }
 
@@ -47,6 +48,7 @@ public class PurchaseOrderController {
         model.addAttribute("orderRequest", new PurchaseOrderRequest());
         model.addAttribute("suppliers", supplierService.findActive());
         model.addAttribute("products", productService.findAll());
+        model.addAttribute("activeMenu", "orders");
         return "orders/form";
     }
 
@@ -60,6 +62,7 @@ public class PurchaseOrderController {
         if (bindingResult.hasErrors()) {
             model.addAttribute("suppliers", supplierService.findActive());
             model.addAttribute("products", productService.findAll());
+            model.addAttribute("activeMenu", "orders");
             return "orders/form";
         }
 
@@ -74,6 +77,7 @@ public class PurchaseOrderController {
         log.debug("Loading purchase order detail: {}", id);
         PurchaseOrder order = purchaseOrderService.findById(id);
         model.addAttribute("order", order);
+        model.addAttribute("activeMenu", "orders");
         return "orders/detail";
     }
 
